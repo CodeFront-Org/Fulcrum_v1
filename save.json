@@ -1,0 +1,178 @@
+{
+  "msg": [
+    {
+      "loan_id": 1,
+      "data": [
+        {
+          "loan_id": 1,
+          "date": "October 2024",
+          "installments": 3957,
+          "status": 1
+        },
+        {
+          "loan_id": 1,
+          "date": "November 2024",
+          "installments": 3957,
+          "status": 1
+        },
+        {
+          "loan_id": 1,
+          "date": "December 2024",
+          "installments": 3957,
+          "status": 0
+        },
+        {
+          "loan_id": 1,
+          "date": "January 2025",
+          "installments": 3957,
+          "status": 0
+        },
+        {
+          "loan_id": 1,
+          "date": "March 2025",
+          "installments": 3957,
+          "status": 0
+        }
+      ]
+    },
+    {
+      "loan_id": 2,
+      "data": [
+        {
+          "loan_id": 2,
+          "date": "October 2024",
+          "installments": 5741,
+          "status": 1
+        },
+        {
+          "loan_id": 2,
+          "date": "November 2024",
+          "installments": 5741,
+          "status": 1
+        },
+        {
+          "loan_id": 2,
+          "date": "December 2024",
+          "installments": 5741,
+          "status": 0
+        },
+        {
+          "loan_id": 2,
+          "date": "January 2025",
+          "installments": 5741,
+          "status": 0
+        },
+        {
+          "loan_id": 2,
+          "date": "March 2025",
+          "installments": 5741,
+          "status": 0
+        },
+        {
+          "loan_id": 2,
+          "date": "April 2025",
+          "installments": 5741,
+          "status": 0
+        }
+      ]
+    },
+    {
+      "loan_id": 4,
+      "data": [
+        {
+          "loan_id": 4,
+          "date": "October 2024",
+          "installments": 10700,
+          "status": 1
+        }
+      ]
+    },
+    {
+      "loan_id": 6,
+      "data": [
+        {
+          "loan_id": 6,
+          "date": "October 2024",
+          "installments": 23283,
+          "status": 1
+        },
+        {
+          "loan_id": 6,
+          "date": "November 2024",
+          "installments": 23283,
+          "status": 1
+        },
+        {
+          "loan_id": 6,
+          "date": "December 2024",
+          "installments": 23283,
+          "status": 0
+        }
+      ]
+    },
+    {
+      "loan_id": 7,
+      "data": [
+        {
+          "loan_id": 7,
+          "date": "November 2024",
+          "installments": 11871,
+          "status": 1
+        },
+        {
+          "loan_id": 7,
+          "date": "December 2024",
+          "installments": 11871,
+          "status": 0
+        },
+        {
+          "loan_id": 7,
+          "date": "January 2025",
+          "installments": 11871,
+          "status": 0
+        },
+        {
+          "loan_id": 7,
+          "date": "February 2025",
+          "installments": 11871,
+          "status": 0
+        },
+        {
+          "loan_id": 7,
+          "date": "March 2025",
+          "installments": 11871,
+          "status": 0
+        }
+      ]
+    },
+    {
+      "loan_id": 8,
+      "data": [
+        {
+          "loan_id": 8,
+          "date": "November 2024",
+          "installments": 9465,
+          "status": 2
+        },
+        {
+          "loan_id": 8,
+          "date": "December 2024",
+          "installments": 9465,
+          "status": 0
+        },
+        {
+          "loan_id": 8,
+          "date": "January 2025",
+          "installments": 9465,
+          "status": 0
+        },
+        {
+          "loan_id": 8,
+          "date": "February 2025",
+          "installments": 9465,
+          "status": 0
+        }
+      ]
+    }
+  ]
+}
