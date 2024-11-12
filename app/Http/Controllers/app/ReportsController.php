@@ -210,6 +210,8 @@ class ReportsController extends Controller
                     $status=2;
                 }
 
+                $mi=Repayment::where('month',$month_f)->where('year',$year)->sum('installments');
+
                 array_push($data,[
                     'scheme_id'=>$scheme_id,
                     'mi'=>ceil($mi),
@@ -226,10 +228,10 @@ class ReportsController extends Controller
                 $tot_loan+=$sum_loan_amt;
                 $tot_monthly_installments+=$mi;
                 $tot_amt_paid+=$amt_paid;
-
+echo $mi."<br>";
                 //End to new Algo
         }
-        //return $data;
+        //return $tot_monthly_installments1;
 
         }else{
             $empty=true;
@@ -266,6 +268,7 @@ class ReportsController extends Controller
         $pick_date=explode('-',$invoice_number);
         $month=$pick_date[1];
         $year=$pick_date[2];
+
         //Date to be used for where filters
         $monthNumber=date('m', strtotime($month . ' 1'));
 
@@ -277,25 +280,28 @@ class ReportsController extends Controller
         $sum=0;
         if($check){
             $status=Invoice::where('invoice_number',$invoice_number)->pluck('status')->first();
-            $loans=Loan::where('company_id',$id)->whereMonth('approver3_date',$monthNumber)
-            ->whereYear("approver3_date",$year)->get();
+            $rs=Repayment::where('month',$month)->where('year',$year)->get();
+            //$loans=Loan::where('company_id',$id)->whereMonth('approver3_date',$monthNumber)
+            //->whereYear("approver3_date",$year)->get();
         }else{//Invoice does not exist
             $status=2;
-            $loans=Loan::where('company_id',$id)->whereMonth('approver3_date',$monthNumber)
-            ->whereYear("approver3_date",$year)->get();
+            $rs=Repayment::where('month',$month)->where('year',$year)->get();
+            // $loans=Loan::where('company_id',$id)->whereMonth('approver3_date',$monthNumber)
+            // ->whereYear("approver3_date",$year)->get();
         }
+        //return count($loans);
 
         //Get month and year from invoice number
         $a=explode('-',$invoice_number);
         $month=$a[1];
         $year=$a[2];
 
-        foreach($loans as $loan){
+        foreach($rs as $loan){
             $user_id=$loan->user_id;
             $user=User::find($user_id);
             $name=$user->first_name." ".$user->last_name;
-            $loan_amt=$loan->requested_loan_amount;
-            $installments=$loan->monthly_installments;
+            $loan_amt=$loan->loan_amount;
+            $installments=$loan->installments;
             $sum+=$installments;
 
             //Check if user has a partial payment status
@@ -315,7 +321,8 @@ class ReportsController extends Controller
                 'user_partial_status'=>$user_partial_status
             ]);
         }
-        
+
+       // return $users;
 
         return view('app.reports.invoice_report',compact(
             'label',
