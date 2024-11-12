@@ -76,12 +76,13 @@
                  <input type="hidden" name="company" value="{{$company}}">
                  <input type="hidden" name="loan_id" value="{{$user['loan_id']}}">
                  <input type="hidden" name="installments" value="{{$user['installments']}}">
+                 <input type="hidden" name="repayment_id" value="{{$user['repayment_id']}}">
                  <div class="row">
                   <div class="col-md-12">
                       <div class="mb-3">
                           <label class="form-label">Payment Status</label>
                           <select name="payment_status" class="form-control form-select" id="paymentStatus">
-                              <option value="0">UnPaid</option>
+                              <option value="0">Not Paid</option>
                               <option value="1">Paid</option>
                           </select>
                       </div>

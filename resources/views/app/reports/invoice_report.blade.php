@@ -34,7 +34,7 @@
                                   <span class="text-success">Paid</span>
                                 @endif
                                 @if ($status==0)
-                                  <span class="text-danger">Pending</span>
+                                  <span class="text-danger">Not Paid</span>
                                 @endif
                                 @if ($status==2)
                                   <span class="text-warning">Partially Paid</span>

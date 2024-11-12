@@ -197,8 +197,10 @@ class ReportsController extends Controller
                 $loan_requests=Repayment::where('company_id',$scheme_id)->where('month',$month_f)->where('year',$year)->count();
                 $mi=Repayment::where('company_id',$scheme_id)->where('month',$month_f)->where('year',$year)->sum('installments');
 
-                $sum_loan_amt=Repayment::where('company_id',$scheme_id)->where('month',$month_f)->where('year',$year)->sum('loan_amount');
-                $amt_paid=Repayment::where('company_id',$scheme_id)->where('month',$month_f)->where('year',$year)->where('status',1)->sum('installments');
+                //$sum_loan_amt=Repayment::where('month',$month_f)->where('year',$year)->sum('loan_amount');
+                $sum_loan_amt=Loan::where('company_id',$company_id)->where('final_decision',1)->whereMonth('approver3_date',$month)->
+                        whereYear('approver3_date',$year)->sum('requested_loan_amount');
+                $amt_paid=Repayment::where('company_id',$company_id)->where('month',$month_f)->where('year',$year)->where('status',1)->sum('installments');
 
                 if(Repayment::where('company_id',$scheme_id)->where('month',$month_f)->where('year',$year)->where('status',0)->exists()){
                     $status=0;
@@ -210,7 +212,7 @@ class ReportsController extends Controller
                     $status=2;
                 }
 
-                $mi=Repayment::where('month',$month_f)->where('year',$year)->sum('installments');
+                $mi=Repayment::where('company_id',$company_id)->where('month',$month_f)->where('year',$year)->sum('installments');
 
                 array_push($data,[
                     'scheme_id'=>$scheme_id,
@@ -228,7 +230,6 @@ class ReportsController extends Controller
                 $tot_loan+=$sum_loan_amt;
                 $tot_monthly_installments+=$mi;
                 $tot_amt_paid+=$amt_paid;
-echo $mi."<br>";
                 //End to new Algo
         }
         //return $tot_monthly_installments1;
@@ -280,12 +281,12 @@ echo $mi."<br>";
         $sum=0;
         if($check){
             $status=Invoice::where('invoice_number',$invoice_number)->pluck('status')->first();
-            $rs=Repayment::where('month',$month)->where('year',$year)->get();
+            $rs=Repayment::where('company_id',$id)->where('month',$month)->where('year',$year)->get();
             //$loans=Loan::where('company_id',$id)->whereMonth('approver3_date',$monthNumber)
             //->whereYear("approver3_date",$year)->get();
         }else{//Invoice does not exist
-            $status=2;
-            $rs=Repayment::where('month',$month)->where('year',$year)->get();
+            $status=0;
+            $rs=Repayment::where('company_id',$id)->where('month',$month)->where('year',$year)->get();
             // $loans=Loan::where('company_id',$id)->whereMonth('approver3_date',$monthNumber)
             // ->whereYear("approver3_date",$year)->get();
         }
@@ -302,14 +303,13 @@ echo $mi."<br>";
             $name=$user->first_name." ".$user->last_name;
             $loan_amt=$loan->loan_amount;
             $installments=$loan->installments;
-            $sum+=$installments;
 
             //Check if user has a partial payment status
-            $p_status=Repayment::where('user_id',$user_id)->where('loan_id',$loan->id)->where('month',$month)
-            ->where('year',$year)->pluck('status')->first();
+            $p_status=Repayment::where('id',$loan->id)->pluck('status')->first();
             if($p_status==2){
                 $user_partial_status=true;
             }else{
+                $sum+=$installments;
                 $user_partial_status=false;
             }
 
@@ -322,8 +322,8 @@ echo $mi."<br>";
             ]);
         }
 
-       // return $users;
-
+        //return $users;
+       
         return view('app.reports.invoice_report',compact(
             'label',
             'users',
@@ -376,7 +376,7 @@ echo $mi."<br>";
                         'status'=>1
                     ]);
                     //
-                    session()->flash('message','The Loan '.$request->invoice_number.' has been marked as Paid.');
+                    session()->flash('message','The Invoice '.$request->invoice_number.' has been marked as Paid.');
                     return back();
                 }else{
                     session()->flash('error','An unexpected errror occured. Please try again later');
@@ -404,7 +404,7 @@ echo $mi."<br>";
                         'status'=>1
                     ]);
                     //
-                    session()->flash('message','The Loan '.$request->invoice_number.' has been marked as Paid.');
+                    session()->flash('message','The Invoice '.$request->invoice_number.' has been marked as Paid.');
                     return back();
                 }else{
                     session()->flash('error','An unexpected errror occured. Please try again later');
@@ -433,7 +433,7 @@ echo $mi."<br>";
                         'status'=>0
                     ]);
                     //
-                    session()->flash('message','The Loan '.$request->invoice_number.' has been marked as Unpaid.');
+                    session()->flash('message','The Invoice '.$request->invoice_number.' has been marked as Unpaid.');
                     return back();
                 }else{
                     session()->flash('error','An unexpected errror occured. Please try again later');
@@ -444,7 +444,8 @@ echo $mi."<br>";
                     'staff_id'=>Auth::id(),
                     'amount_paid'=>0,
                     'status'=>$request->payment_status,
-                    'date_paid'=>NULL
+                    'date_paid'=>NULL,
+                    'status'=>0
 
                 ]);
                 if($update){
@@ -454,7 +455,7 @@ echo $mi."<br>";
                         'status'=>0
                     ]);
                     //
-                    session()->flash('message','The Loan '.$request->invoice_number.' has been marked as Unpaid.');
+                    session()->flash('message','The Invoice '.$request->invoice_number.' has been marked as Unpaid.');
                     return back();
                 }else{
                     session()->flash('error','An unexpected errror occured. Please try again later');
@@ -482,26 +483,28 @@ echo $mi."<br>";
             $sum=0;
             if($check){
                 $status=Invoice::where('invoice_number',$invoice_number)->pluck('status')->first();
-                $loans=Loan::where('company_id',$id)->whereMonth('approver3_date',$monthNumber)
-                ->whereYear("approver3_date",$year)->get();
+                $rs=Repayment::where('company_id',$id)->where('month',$month)->where('year',$year)->get();
+                // $loans=Loan::where('company_id',$id)->whereMonth('approver3_date',$monthNumber)
+                // ->whereYear("approver3_date",$year)->get();
             }else{//Invoice does not exist
                 $status=2;
-                $loans=Loan::where('company_id',$id)->whereMonth('approver3_date',$monthNumber)
-                ->whereYear("approver3_date",$year)->get();
+                $rs=Repayment::where('company_id',$id)->where('month',$month)->where('year',$year)->get();
+                // $loans=Loan::where('company_id',$id)->whereMonth('approver3_date',$monthNumber)
+                // ->whereYear("approver3_date",$year)->get();
             }
     
-            foreach($loans as $loan){
+            foreach($rs as $loan){
                 $user_id=$loan->user_id;
                 $user=User::find($user_id);
                 $name=$user->first_name." ".$user->last_name;
-                $loan_amt=$loan->requested_loan_amount;
-                $installments=$loan->monthly_installments;
+                $loan_amt=$loan->loan_amount;
+                $installments=$loan->installments;
                 $sum+=$installments;
-                $status=Repayment::where('loan_id',$loan->id)->where('company_id',$id)
-                ->where('month',$month_f)->where('year',$year)->pluck('status')->first();
+                $status=Repayment::where('id',$loan->id)->pluck('status')->first();
     
                 array_push($users,[
                     'id'=>$loan->user_id,
+                    'repayment_id'=>$loan->id,
                     'loan_id'=>$loan->id,
                     'name'=>$name,
                     'contacts'=>$user->contacts,
@@ -827,7 +830,7 @@ echo $mi."<br>";
                     'loan_requests'=>$request->loan_requests,
                     'loan_amount'=>$request->loan_amt,
                     'payable_amount'=>0,//$request->tot_expected_payments,
-                    'status'=>$request->payment_status,
+                    'status'=>2,
                     'invoice_date'=>Carbon::now(),
                 ]);
             }else{
@@ -835,12 +838,15 @@ echo $mi."<br>";
                     'status'=>2,
                 ]);
             }
+            //return $loan_id;
             //Update Repayments
-            Repayment::where('loan_id',$loan_id)->where('month',$month)->where('year',$year)->update([
+            Repayment::where('id',$request->repayment_id)->update([
                 'status'=>2,
+                'comments'=>$request->desc
             ]);
+
             //Mark the remaining users as paid
-            Repayment::where('month',$month)->where('year',$year)->where('status',0)->update([
+            Repayment::where('company_id',$company_id)->where('month',$month)->where('year',$year)->where('status', '!=', 2)->update([
                 'status'=>1,
             ]);
         }elseif($type==1){// Make Full payment
@@ -858,18 +864,24 @@ echo $mi."<br>";
                     'invoice_date'=>Carbon::now(),
                 ]);
             }else{
-                Invoice::where('invoice_number',$invoice_number)->update([
-                    'status'=>1,
-                ]);
+                // Invoice::where('invoice_number',$invoice_number)->update([
+                //     'status'=>1,
+                // ]);
             }
             //Update Repayments
-            Repayment::where('loan_id',$loan_id)->where('month',$month)->where('year',$year)->update([
+            Repayment::where('id',$request->repayment_id)->update([
                 'status'=>1,
+                'comments'=>$request->desc
             ]);
-            // //Mark the remaining users as paid
-            // Repayment::where('month',$month)->where('year',$year)->where('status',0)->update([
-            //     'status'=>1,
-            // ]);
+            // Check if the remaining user has any partial payment so as to mark the invoice as fully paid
+            $check=Repayment::where('company_id',$company_id)->where('month',$month)->where('year',$year)->where('status',2)->exists();
+            if(!$check){//Mark the invoice to be fully paid
+                Invoice::where('invoice_number',$invoice_number)->update([
+                    'status'=>1
+                ]);
+                session()->flash('message','The Invoice '.$request->installments.' has been marked as Fully paid.');
+                return back();
+            }
         }
         session()->flash('message','The loan '.$request->installments.' has been marked as Partially paid.');
         return back();

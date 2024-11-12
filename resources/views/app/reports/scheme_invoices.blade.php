@@ -187,7 +187,7 @@ aria-hidden="true">
                        <select name="payment_status" class="form-control form-select">
                            <option value="" selected disabled>Select one</option>
                            <option value="1">Paid</option>
-                           <option value="2">UnPaid</option>
+                           <option value="2">Not Paid</option>
                            <option value="3">Partially Paid</option>
                        </select>
                    </div>
