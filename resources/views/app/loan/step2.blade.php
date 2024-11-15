@@ -84,9 +84,9 @@
                                                         value="{{$allowance}}"
                                                         class="form-control"
                                                         placeholder="Other Allowances"
-                                                        pattern="^[1-9]\d*(\.\d+)?$" 
+                                                        pattern="^[0-9]\d*(\.\d+)?$" 
                                                         title="Please enter a valid positive number"
-                                                        min="1"
+                                                        min="0"
                                                         required
                                                         />
                                                     </div>

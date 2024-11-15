@@ -596,6 +596,8 @@ class ReportsController extends Controller
 
     public function loans(Request $request){
         $label="";
+
+       // return Loan::select('id','approver3_date')->where('company_id',3)->where('final_decision',1)->latest()->get();
         
         $from=$request->from;
         $to=$request->to;
@@ -639,7 +641,7 @@ class ReportsController extends Controller
             $date_selected=$to->format('Y-m-d');
 
             // //Get Loan data for that scheme
-            $loan_data=Loan::select('id','requested_loan_amount','payment_period','monthly_installments','approver3_date')
+            $loan_data=Loan::select('id','requested_loan_amount','payment_period','monthly_installments','approver3_date','final_decision')
             ->where('company_id',$scheme_id)->where('final_decision',1)->whereBetween('approver3_date',[$from,$to])
             ->get();
             $date=Carbon::now();
@@ -715,31 +717,33 @@ class ReportsController extends Controller
 
                 } else {
                     // The current date is outside the repayment period
-                    continue;
+                    //continue;
                 }
                 
 
                 //Check Invoice Payment
                 $month = $date->format('m'); // Extract month
                 $year = $date->format('Y');  // Extract year
-                $invoices = Invoice::where('company_id',$scheme_id)->whereMonth('invoice_date', $month)
-                ->whereYear('invoice_date', $year)
-                ->first();
-                if($invoices){
-                    $status=$invoices->status;
-                    $invoice_amt_paid=$invoices->amount_paid;
-                    $tot_amt_paid=$invoice_amt_paid;
-                    $date_paid=$invoices->date_paid;
-                    if($date_paid){
-                        $date_paid=Carbon::parse($date_paid);
-                        $date_paid=$date_paid->format('jS F Y');
-                    }else{
-                        $date_paid="N/A";
-                    }
-                }else{
-                    $status=2;
-                    $date_paid="N/A";
-                }
+                // $invoices = Invoice::where('company_id',$scheme_id)->whereMonth('invoice_date', $month)
+                // ->whereYear('invoice_date', $year)
+                // ->first();
+                // if($invoices){
+                //     $status=$invoices->status;
+                //     $invoice_amt_paid=$invoices->amount_paid;
+                //     $tot_amt_paid=$invoice_amt_paid;
+                //     $date_paid=$invoices->date_paid;
+                //     if($date_paid){
+                //         $date_paid=Carbon::parse($date_paid);
+                //         $date_paid=$date_paid->format('jS F Y');
+                //     }else{
+                //         $date_paid="N/A";
+                //     }
+                // }else{
+                //     $status=2;
+                //     $date_paid="N/A";
+                // }
+
+                $date_paid="N/A";
                 
                 $sum_loan_amt+=$req_amt;
                 $sum_interest+=$interest;
@@ -763,6 +767,7 @@ class ReportsController extends Controller
                     'date_paid'=>$date_paid,
                 ]);
             }
+           // return $data;
 
             $users=Loan::where('company_id',$scheme_id)->count();
             $loan_amt=Loan::where('company_id',$scheme_id)->sum('requested_loan_amount');
@@ -818,17 +823,16 @@ class ReportsController extends Controller
         $year=$m[2];
 
         $loan_id=$request->loan_id;
-        
         if($type==0){//Make a partial payment
             //Create invoice for partial payment if does not exist
             $check=Invoice::where('invoice_number',$invoice_number)->exists();
             if(!$check){
                 Invoice::create([
                     'invoice_number'=>$request->invoice_number,
-                    'company_id'=>$request->company_id,
+                    'company_id'=>$company_id,
                     'staff_id'=>Auth::id(),
                     'loan_requests'=>$request->loan_requests,
-                    'loan_amount'=>$request->loan_amt,
+                    'loan_amount'=>0,//$request->loan_amt,
                     'payable_amount'=>0,//$request->tot_expected_payments,
                     'status'=>2,
                     'invoice_date'=>Carbon::now(),

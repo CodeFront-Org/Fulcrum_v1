@@ -5,19 +5,24 @@
         <i class="fa fa-bars"></i>
     </button>
 
-    <!-- Topbar Search -->
+    <!-- Topbar Search   $2y$10$Nr4xxskeX1lcIMN0o4/MieGaIrtfpUsUGFB7JQhBugIy96KxrpDLC -->
     <form action="{{route('search-user')}}" class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
         <div class="input-group">
             <input type="text" name="email" id="reg_no"list="regnoo1" class="form-control bg-light border-0 small" placeholder="Search for user..."
                 aria-label="Search" aria-describedby="basic-addon2">
                 @php
                     use App\Models\User;
-                    //$role_type=Auth
-                    $users = User::select('id','email','first_name','last_name')->get();
+                    $role_type=Auth::id();
+                    $role_type=User::find($role_type)->role_type;
+                    if($role_type=='admin'){
+                        $users = User::select('id','email','first_name','last_name')->get();
+                    }else{
+                        $users=[];
+                    }
                 @endphp
                 <datalist id="regnoo1">
                     @foreach ($users as $user)
-                        <option value="{{ $user->email }}">{{ $user->first_name }} {{ $user->first_name }}</option>
+                        <option value="{{ $user->email }}">{{ $user->first_name }} {{ $user->last_name }}</option>
                     @endforeach
                 </datalist>
             <div class="input-group-append"> 
@@ -26,9 +31,20 @@
                 </button>
             </div>
         </div>
-    </form>    
+    </form>  
 
+    {{-- <form action="{{route('search-user')}}" class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+        <div class="input-group">
+            <input type="text" name="email" id="reg_no"list="regnoo1" class="form-control bg-light border-0 small" placeholder="Search for user..."
+                aria-label="Search" aria-describedby="basic-addon2">
 
+            <div class="input-group-append"> 
+                <button class="btn btn-primary" type="submit">
+                    <i class="fas fa-search fa-sm"></i>
+                </button>
+            </div>
+        </div>
+    </form>  --}}
    
     
     <!-- Topbar Navbar   $2y$10$YhfQrjd0/Q.HqOySLbZCAeGIxhzepz2XPVyPOz1yZT9z9WKfcK/IO   

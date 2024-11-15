@@ -45,7 +45,6 @@ class SearchController extends Controller
         });
 
 
-
         $users_count=count($users);
         $banks=Bank::all();
 

@@ -48,8 +48,11 @@
                 <i class="fas fa-mail-bulk"></i>
                 <span>Designation</span></a>
         </li>
-        
+    
 
+        @endrole
+
+        @if (auth()->user()->updated_psw==10)
         <li class="nav-item">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo1"
                 aria-expanded="true" aria-controls="collapseTwo">
@@ -64,8 +67,7 @@
                 </div>
             </div>
         </li>
-
-        @endrole
+        @endif
 
         @role('user')
             <li class="nav-item">

@@ -255,7 +255,7 @@ class LoanController extends Controller
                     // 'outstanding_loan'=>$request->outstanding_loan,
                     // 'outstanding_loan_org'=>$request->outstanding_loan==0?NULL:$request->financial_institution,
                     // 'outstanding_loan_balance'=>$request->outstanding_loan==0?NULL:$request->loan_bal,
-                    'progress'=>3
+                    'progress'=>2
                 ]);
                 //Redirect user to step 2
                 return redirect()->route('loan.index');
