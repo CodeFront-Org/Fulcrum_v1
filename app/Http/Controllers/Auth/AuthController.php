@@ -99,8 +99,8 @@ class AuthController extends Controller
 
     public function sendOTP($user){
         // 1. Generate a 5-digit OTP
-        ////$otp = rand(10000, 99999);
-        $otp=12345;
+        $otp = rand(10000, 99999);
+        //$otp=12345;
         $hashedOtp = Hash::make($otp);
 
         User::where('id',$user->id)->update([
@@ -118,7 +118,7 @@ class AuthController extends Controller
         //$this->smsController->send_sms('0797965680',$msg);
 
         // sending via email:
-        ////Mail::to($user->email)->send(new VerifyOTP($otp,$user->email));
+        Mail::to($user->email)->send(new VerifyOTP($otp,$user->email));
         //Mail::to("muchenemartin00@gmail.com")->send(new VerifyOTP($otp,"muchenemartin00@gmail.com"));
 
 
