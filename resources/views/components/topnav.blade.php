@@ -5,7 +5,7 @@
         <i class="fa fa-bars"></i>
     </button>
 
-    <!-- Topbar Search   $2y$10$Nr4xxskeX1lcIMN0o4/MieGaIrtfpUsUGFB7JQhBugIy96KxrpDLC -->
+    <!-- Topbar Search -->
     <form action="{{route('search-user')}}" class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
         <div class="input-group">
             <input type="text" name="email" id="reg_no"list="regnoo1" class="form-control bg-light border-0 small" placeholder="Search for user..."
