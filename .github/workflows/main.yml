@@ -11,7 +11,7 @@ jobs:
       - name: 📂 Sync files
         uses: SamKirkland/FTP-Deploy-Action@4.0.0
         with:
-          server: ${{secrets.HOSICLOUD_FTP}}
-          username: ${{secrets.HOSICLOUD_USER}}
-          password: ${{secrets.HOSICLOUD_PASS}}
+          server: ${{secrets.HOSICLOUD_FARMERS_FTP}}
+          username: ${{secrets.HOSICLOUD_FARMER_USER}}
+          password: ${{secrets.HOSICLOUD_FARMERS_PASS}}
           server-dir: /
