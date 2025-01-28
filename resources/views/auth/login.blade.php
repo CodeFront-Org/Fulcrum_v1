@@ -71,6 +71,7 @@
                 <h1> <a href="index.html"> <img src="./images/logo.jpeg" width="120" alt="Company Logo"></a></h1>
             </div>
         </div>
+        <h1>FARMERS </h1>
         <!-- register -->
     <div style="position: relative; width:100%" class="logForm">
         <div class="w3lhny-register w-160" style="justify-content: center;align-items: center;align-content: center;" >
@@ -106,7 +107,7 @@
         <!-- //register -->
 
         <div class="footer1">
-            <p>© Fulcrum Link Limited
+            <p>FARMERS!
             </p>
         </div>
     </section>
