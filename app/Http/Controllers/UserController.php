@@ -176,4 +176,5 @@ class UserController extends Controller
             return response()->json(['error','Could not find User. Please check if the user exists.'],404);
         }
     }
+    //end of file
 }
