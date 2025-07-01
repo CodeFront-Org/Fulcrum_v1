@@ -338,7 +338,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <!-- End View Loan Modal-->
+                                    <!-- End View Loan Modal LAST CHANGE-->
                                     @endforeach
                                   </tbody>
                                   </table>
@@ -346,6 +346,7 @@
                               </div>
                             </div>
                           </div>
+
 
 
 @endsection
