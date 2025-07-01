@@ -269,11 +269,11 @@
                                                     </div>
                                                     <div class="mb-1">
                                                         <b style="font-weight: bolder; color:black">Net Pay: </b>
-                                                        <span>{{number_format($item->net_salary)}}</span>
+                                                        <span>{{number_format(floatval($item->net_salary))}}</span>
                                                     </div>
                                                     <div class="mb-1">
                                                         <b style="font-weight: bolder; color:black">Allowances: </b>
-                                                        <span>{{number_format($item->other_allowances)}}</span>
+                                                        <span>{{number_format(floatval($item->other_allowances))}}</span>
                                                     </div>
                                                     @if ($item->outstanding_loan==1 || $item->outstanding_loan=='YES')
                                                         <div class="mb-1">
@@ -282,7 +282,7 @@
                                                         </div>
                                                         <div class="mb-1">
                                                             <b style="font-weight: bolder; color:black">Outstanding Loan Amount: : </b>
-                                                            <span class="text-danger">{{number_format($item->outstanding_loan_balance)}}</span>
+                                                            <span class="text-danger">{{number_format(floatval($item->outstanding_loan_balance))}}</span>
                                                         </div>
                                                     @endif
                                                     <div class="mb-1">
