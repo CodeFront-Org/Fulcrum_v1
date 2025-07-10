@@ -17,6 +17,13 @@ use Laravel\Socialite\Facades\Socialite;
 |
 */
 
+use App\Http\Controllers\RepaymentController;
+
+Route::get('/repayments', [App\Http\Controllers\app\RepaymentController::class, 'index'])->name('repayments.index');
+Route::put('/repayments/{id}', [App\Http\Controllers\app\RepaymentController::class, 'update'])->name('repayments.update');
+
+
+
 Route::get('/send-mail',[App\Http\Controllers\MailController::class,'sendEmail'])->name('/send-mail');
 
 Route::get('/(secure)/index.html',function(){

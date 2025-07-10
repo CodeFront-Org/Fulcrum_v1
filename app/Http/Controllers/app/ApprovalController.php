@@ -4,6 +4,7 @@ namespace App\Http\Controllers\app;
 
 use App\Http\Controllers\Controller;
 use App\Models\Access;
+use App\Models\Company;
 use App\Models\Loan;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -77,6 +78,13 @@ class ApprovalController extends Controller
                 $loan_user_id=$loan->user_id;
 
                 $date=Carbon::now();
+                $cut_off_day= Company::where('id',$company_id)->pluck('cut_off_day')->first();
+
+                if($date->day > $cut_off_day){
+                    //If the current day is greater than the cut off day, then payment is pushed to next month
+                    $date->addMonth();
+                }
+
                 for($i=1; $i<=$period;$i++){
                     $date->format('F Y');
                     $month=$date->format('F');

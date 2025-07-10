@@ -28,6 +28,7 @@ class CreateCompaniesTable extends Migration
             $table->float('month10')->nullable();
             $table->float('month11')->nullable();
             $table->float('month12')->nullable();
+            $table->tinyInteger('cut_off_day')->default(25); //Repayment cut-off day, default is 25th of the month
             $table->softDeletes();
             $table->timestamps();
         });

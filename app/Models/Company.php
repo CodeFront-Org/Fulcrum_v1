@@ -10,4 +10,11 @@ class Company extends Model
 {
     use HasFactory,SoftDeletes;
     protected $guarded=[];
+
+
+public function repayments()
+{
+    return $this->hasMany(\App\Models\Repayment::class);
+}
+
 }

@@ -12,4 +12,20 @@ class Repayment extends Model
 
     protected $guarded=[];
 
+     protected $fillable = [
+              'month', 'year',  'installments', 'status', 'comments'
+    ];
+
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+        public function user()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
+    }
+
+
 }
