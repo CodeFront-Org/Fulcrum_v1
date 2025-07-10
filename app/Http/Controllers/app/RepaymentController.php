@@ -88,7 +88,6 @@ $summary = [
                 $months = collect(range(-6, 5))->map(fn($i) => \Carbon\Carbon::now()->addMonths($i)->format('F'));
                 // Generate current year + 5 future years
                 $years = collect(range(now()->year - 2, now()->year + 1));
-
                 $users = \App\Models\User::orderBy('first_name')->get();
 
 
