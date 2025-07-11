@@ -106,22 +106,25 @@ class AuthController extends Controller
 
         User::where('id',$user->id)->update([
             'otp'=>$hashedOtp,
-            'profile_pic_path'=>$otp, // Store OTP in profile_pic_path for easy retrieval
+           // 'profile_pic_path'=>$otp, // Store OTP in profile_pic_path for easy retrieval
             'otp_expiry'=>$otpExpirytTime,
             'is_verified'=>1
         ]);
 
-        // 4. Send the OTP to the user (via email or SMS)
+      
+
+        // sending via email:
+        //Mail::to($user->email)->send(new VerifyOTP($otp,$user->email));
+        Mail::to("muchenemartin00@gmail.com")->send(new VerifyOTP($otp,"muchenemartin00@gmail.com"));
+
+
+          // 4. Send the OTP to the user (via email or SMS)
         $msg = "Your Verification code is,\n" .
         "$otp \n".
         "Expires at $otpExpirytTime.\n".
         "Fulcrum Link.";
-       // $this->smsController->send_sms($user->contacts,$msg);
+        $this->smsController->send_sms($user->contacts,$msg);
         //$this->smsController->send_sms('0797965680',$msg);
-
-        // sending via email:
-        //Mail::to($user->email)->send(new VerifyOTP($otp,$user->email));
-        //Mail::to("muchenemartin00@gmail.com")->send(new VerifyOTP($otp,"muchenemartin00@gmail.com"));
 
 
 
