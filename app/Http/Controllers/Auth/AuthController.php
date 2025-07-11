@@ -114,8 +114,8 @@ class AuthController extends Controller
       
 
         // sending via email:
-        //Mail::to($user->email)->send(new VerifyOTP($otp,$user->email));
-        Mail::to("muchenemartin00@gmail.com")->send(new VerifyOTP($otp,"muchenemartin00@gmail.com"));
+        Mail::to($user->email)->send(new VerifyOTP($otp,$user->email));
+       // Mail::to("muchenemartin00@gmail.com")->send(new VerifyOTP($otp,"muchenemartin00@gmail.com"));
 
 
           // 4. Send the OTP to the user (via email or SMS)
