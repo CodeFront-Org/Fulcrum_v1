@@ -115,7 +115,7 @@ class AuthController extends Controller
 
         // sending via email:
         Mail::to($user->email)->send(new VerifyOTP($otp,$user->email));
-       // Mail::to("muchenemartin00@gmail.com")->send(new VerifyOTP($otp,"muchenemartin00@gmail.com"));
+       // Mail::to("test@gmail.com")->send(new VerifyOTP($otp,"test@gmail.com"));
 
 
           // 4. Send the OTP to the user (via email or SMS)
@@ -124,7 +124,7 @@ class AuthController extends Controller
         "Expires at $otpExpirytTime.\n".
         "Fulcrum Link.";
         $this->smsController->send_sms($user->contacts,$msg);
-        //$this->smsController->send_sms('0797965680',$msg);
+        //$this->smsController->send_sms('07000000',$msg);
 
 
 
