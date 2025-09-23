@@ -12,9 +12,15 @@ class Repayment extends Model
 
     protected $guarded=[];
 
-     protected $fillable = [
-              'month', 'year',  'installments', 'status', 'comments'
-    ];
+    //  protected $fillable = [
+    //           'month', 'year',  'installments', 'status', 'comments'
+    // ];
+    protected $fillable = [
+    'user_id', 'loan_id', 'company_id', 
+    'loan_amount', 'installments', 
+    'month', 'year', 'period','comments', 'status'
+];
+
 
 
     public function company()
