@@ -87,6 +87,10 @@ Route::get('/payment_schedule',[\App\Http\Controllers\app\ReportsController::cla
 Route::get('/loan-requests',[\App\Http\Controllers\app\LoanController::class,'loan_requests'])->name('loan-requests')->middleware('admin');
 Route::get('/loans',[\App\Http\Controllers\app\ReportsController::class,'loans'])->name('loans')->middleware('admin');//View loans 
 Route::get('/scheme-perfomance',[\App\Http\Controllers\app\ReportsController::class,'scheme_report'])->name('scheme-perfomance')->middleware('admin');
+Route::get('/disbursement-report',[\App\Http\Controllers\app\ReportsController::class,'disbursement_report'])->name('disbursement-report')->middleware('admin');
+Route::get('/profitability-report',[\App\Http\Controllers\app\ReportsController::class,'profitability_report'])->name('profitability-report')->middleware('admin');
+Route::get('/repayment-schedule-pdf/{scheme_id}',[\App\Http\Controllers\app\RepaymentScheduleController::class,'generatePDF'])->name('repayment-schedule-pdf')->middleware('admin');
+Route::get('/repayment-schedule-excel/{scheme_id}',[\App\Http\Controllers\app\RepaymentScheduleController::class,'generateExcel'])->name('repayment-schedule-excel')->middleware('admin');
 Route::get('/search-user',[\App\Http\Controllers\app\SearchController::class,'search_user'])->name('search-user');
 
 //*******************End Report Admin routes *******************///

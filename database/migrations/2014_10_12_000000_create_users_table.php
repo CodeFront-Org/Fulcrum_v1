@@ -32,6 +32,12 @@ class CreateUsersTable extends Migration
             $table->string('alternative_contacts')->nullable();
             $table->integer('company_id')->nullable();
             $table->string('role_type')->default('user');
+            $table->tinyInteger('status')->default(1);
+            $table->string('auth_type')->default('email');
+            $table->string('path')->nullable();
+            $table->tinyInteger('blacklist')->default(0);
+            $table->smallInteger('blacklist_attempts')->default(0);
+            $table->timestamp('time_blacklisted')->nullable();
             $table->smallInteger('updated_psw')->nullable()->default(0);  // Indicate whether Active or Inactive
             $table->string('profile_pic_path')->nullable(); //to be used for img path
             $table->string('password');

@@ -680,7 +680,6 @@ class ReportsController extends Controller
             
         }else{// Pick data for all companies for that month(current) only
              $date=Carbon::now();
-             $date->format('Y-m-d');
              $month = $date->format('m'); // Extract month
              $year = $date->format('Y');  // Extract year
 
@@ -787,6 +786,15 @@ class ReportsController extends Controller
             $summary="Loss";
             $netpl=$tot_expected_payments-$tot_loan;
         }
+        
+        // Ensure variables are always defined
+        if (!isset($for_date)) {
+            $for_date = Carbon::now()->format('F Y');
+        }
+        if (!isset($date_selected)) {
+            $date_selected = Carbon::now()->format('Y-m-d');
+        }
+        
         //return $data;
         return view('app.reports.loans',compact(
             'label',
@@ -810,6 +818,150 @@ class ReportsController extends Controller
         $label="";
 
         return view('app.reports.scheme_report',compact('label'));
+    }
+
+    public function disbursement_report(Request $request){
+        $label="Disbursement Report";
+        
+        $whereClause = "WHERE l.final_decision = 1";
+        $params = [];
+        
+        if($request->scheme) {
+            $whereClause .= " AND c.name = ?";
+            $params[] = $request->scheme;
+        }
+        if($request->year) {
+            $whereClause .= " AND YEAR(l.approver3_date) = ?";
+            $params[] = $request->year;
+        }
+        if($request->month) {
+            $whereClause .= " AND MONTH(l.approver3_date) = ?";
+            $params[] = $request->month;
+        }
+        if($request->from_date && $request->to_date) {
+            $whereClause .= " AND l.approver3_date BETWEEN ? AND ?";
+            $params[] = $request->from_date;
+            $params[] = $request->to_date;
+        }
+        
+        $query = "SELECT 
+                c.name as scheme_name,
+                YEAR(l.approver3_date) as year,
+                MONTH(l.approver3_date) as month,
+                MONTHNAME(l.approver3_date) as month_name,
+                SUM(l.requested_loan_amount) as total_disbursed,
+                COUNT(l.id) as loan_count
+            FROM loans l
+            JOIN companies c ON l.company_id = c.id
+            {$whereClause}
+            GROUP BY c.id, c.name, YEAR(l.approver3_date), MONTH(l.approver3_date), MONTHNAME(l.approver3_date)
+            ORDER BY c.name, year, month";
+            
+        $perPage = 15;
+        $page = $request->get('page', 1);
+        $offset = ($page - 1) * $perPage;
+        
+        $totalQuery = "SELECT COUNT(*) as total FROM ({$query}) as subquery";
+        $total = \DB::select($totalQuery, $params)[0]->total;
+        
+        $data = \DB::select($query . " LIMIT {$perPage} OFFSET {$offset}", $params);
+        
+        $pagination = [
+            'current_page' => $page,
+            'per_page' => $perPage,
+            'total' => $total,
+            'last_page' => ceil($total / $perPage),
+            'from' => $offset + 1,
+            'to' => min($offset + $perPage, $total)
+        ];
+
+        $schemes = \DB::select("SELECT DISTINCT c.name FROM companies c JOIN loans l ON c.id = l.company_id WHERE l.final_decision = 1 ORDER BY c.name");
+        $years = \DB::select("SELECT DISTINCT YEAR(approver3_date) as year FROM loans WHERE final_decision = 1 AND approver3_date IS NOT NULL ORDER BY year DESC");
+
+        return view('app.reports.disbursement_report',compact('label','data','schemes','years','pagination'));
+    }
+
+    public function profitability_report(Request $request){
+        $label="Profitability Report";
+        
+        $whereClause = "WHERE l.final_decision = 1";
+        $params = [];
+        
+        if($request->scheme) {
+            $whereClause .= " AND c.name = ?";
+            $params[] = $request->scheme;
+        }
+        if($request->min_amount) {
+            $whereClause .= " AND l.requested_loan_amount >= ?";
+            $params[] = $request->min_amount;
+        }
+        if($request->max_amount) {
+            $whereClause .= " AND l.requested_loan_amount <= ?";
+            $params[] = $request->max_amount;
+        }
+        if($request->from_date && $request->to_date) {
+            $whereClause .= " AND l.approver3_date BETWEEN ? AND ?";
+            $params[] = $request->from_date;
+            $params[] = $request->to_date;
+        }
+        
+        // Add HAVING clause for profit filters
+        $havingClause = "";
+        if($request->profitable_only) {
+            $havingClause = "HAVING profit > 0";
+        }
+        if($request->high_margin) {
+            $havingClause = "HAVING profit_margin_percent > 20";
+        }
+        
+        $orderBy = "ORDER BY profit DESC";
+        if($request->sort_by) {
+            switch($request->sort_by) {
+                case 'margin': $orderBy = "ORDER BY profit_margin_percent DESC"; break;
+                case 'disbursed': $orderBy = "ORDER BY total_disbursed DESC"; break;
+                case 'loans': $orderBy = "ORDER BY loan_count DESC"; break;
+                case 'scheme': $orderBy = "ORDER BY scheme_name ASC"; break;
+            }
+        }
+        
+        $query = "SELECT 
+                c.name as scheme_name,
+                SUM(l.requested_loan_amount) as total_disbursed,
+                SUM(l.monthly_installments * l.payment_period) as total_expected,
+                SUM(l.monthly_installments * l.payment_period) - SUM(l.requested_loan_amount) as profit,
+                ROUND(((SUM(l.monthly_installments * l.payment_period) - SUM(l.requested_loan_amount)) / SUM(l.requested_loan_amount)) * 100, 2) as profit_margin_percent,
+                COUNT(l.id) as loan_count
+            FROM loans l
+            JOIN companies c ON l.company_id = c.id
+            {$whereClause}
+            GROUP BY c.id, c.name
+            {$havingClause}
+            {$orderBy}";
+            
+        $perPage = 10;
+        $page = $request->get('page', 1);
+        $offset = ($page - 1) * $perPage;
+        
+        $totalQuery = "SELECT COUNT(*) as total FROM ({$query}) as subquery";
+        $total = \DB::select($totalQuery, $params)[0]->total;
+        
+        $data = \DB::select($query . " LIMIT {$perPage} OFFSET {$offset}", $params);
+        
+        $pagination = [
+            'current_page' => $page,
+            'per_page' => $perPage,
+            'total' => $total,
+            'last_page' => ceil($total / $perPage),
+            'from' => $offset + 1,
+            'to' => min($offset + $perPage, $total)
+        ];
+
+        $schemes = \DB::select("SELECT DISTINCT c.name FROM companies c JOIN loans l ON c.id = l.company_id WHERE l.final_decision = 1 ORDER BY c.name");
+
+        // Check if any filters are applied
+        $filtersApplied = $request->scheme || $request->min_amount || $request->max_amount || $request->from_date || $request->to_date || $request->sort_by;
+        
+        return view('app.reports.profitability_report',compact('label','data','schemes','filtersApplied','pagination'));
     }
 
 

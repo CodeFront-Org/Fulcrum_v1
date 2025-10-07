@@ -18,6 +18,13 @@
     </div>
 @endif
 
+    {{-- Export Button --}}
+    <div class="mb-3 d-flex justify-content-end">
+        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#exportModal">
+            <i class="fas fa-download"></i> Export Schedules
+        </button>
+    </div>
+
     <form method="GET" action="{{ route('repayments.index') }}" class="mb-4 row g-3">
         <div class="col-md-2">
             <label>Company</label>
@@ -193,5 +200,82 @@
     {!! $repayments->links() !!}
 </div>
 
+{{-- Export Modal --}}
+<div class="modal fade" id="exportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Export Repayment Schedule</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="exportForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Select Scheme</label>
+                        <select name="scheme_id" id="schemeSelect" class="form-control" required>
+                            <option value="">-- Choose Scheme --</option>
+                            @foreach($companies as $company)
+                                <option value="{{ $company->id }}">{{ $company->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">From Date</label>
+                            <input type="date" name="from_date" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">To Date</label>
+                            <input type="date" name="to_date" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" onclick="exportFile('pdf')">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="exportFile('excel')">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+$(document).ready(function() {
+    $('#schemeSelect').select2({
+        dropdownParent: $('#exportModal'),
+        placeholder: 'Search and select scheme...',
+        allowClear: true
+    });
+});
+
+function exportFile(type) {
+    const form = document.getElementById('exportForm');
+    const schemeId = form.scheme_id.value;
+    const fromDate = form.from_date.value;
+    const toDate = form.to_date.value;
+    
+    if (!schemeId) {
+        alert('Please select a scheme');
+        return;
+    }
+    
+    let url = type === 'pdf' ? 
+        `/repayment-schedule-pdf/${schemeId}` : 
+        `/repayment-schedule-excel/${schemeId}`;
+    
+    if (fromDate || toDate) {
+        url += `?from_date=${fromDate}&to_date=${toDate}`;
+    }
+    
+    window.open(url, '_blank');
+    bootstrap.Modal.getInstance(document.getElementById('exportModal')).hide();
+}
+</script>
 
 @endsection

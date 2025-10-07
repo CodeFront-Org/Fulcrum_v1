@@ -18,15 +18,15 @@
                 <span>Dashboard</span></a>
         </li>
         
-        @role(['admin','finance','hro'])
+        @if(in_array(auth()->user()->role_type, ['admin','finance','hro','2','3','4']))
         <li class="nav-item">
             <a class="nav-link" href="{{route('users.index')}}">
                 <i class="fas fa-mail-bulk"></i>
                 <span>Users</span></a>
         </li>
-        @endrole
+        @endif
         
-        @role('admin')
+        @if(in_array(auth()->user()->role_type, ['admin','4']))
         {{-- <li class="nav-item">
             <a class="nav-link" href="{{route('admins')}}">
                 <i class="fas fa-user-lock"></i>
@@ -50,7 +50,7 @@
         </li>
     
 
-        @endrole
+        @endif
 
         @if (auth()->user()->updated_psw==10)
         <li class="nav-item">
@@ -65,12 +65,14 @@
                     <a class="collapse-item" href="{{route('loans')}}">Loans</a>
                     <a class="collapse-item" href="{{route('all-invoices')}}">Invoices</a>
                     <a class="collapse-item" href="{{route('scheme-perfomance')}}">Scheme Perfomance</a>
+                    <a class="collapse-item" href="{{route('disbursement-report')}}">Disbursements</a>
+                    <a class="collapse-item" href="{{route('profitability-report')}}">Profitability</a>
                 </div>
             </div>
         </li>
         @endif
 
-        @role('user')
+        @if(in_array(auth()->user()->role_type, ['user','1']))
             <li class="nav-item">
                 <a class="nav-link" href="{{route('loan.index')}}">
                     <i class="fas fa-mail-bulk"></i>
@@ -81,7 +83,7 @@
                     <i class="fas fa-coins"></i>
                     <span>Repayment Schedules</span></a>
             </li>
-        @endrole
+        @endif
 
         {{-- <li class="nav-item">
             <a class="nav-link" href="profile.php">
