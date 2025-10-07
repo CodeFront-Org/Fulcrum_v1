@@ -49,35 +49,33 @@ class RepaymentController extends Controller
     // ->paginate(20)
     // ->appends($request->all());
 
-   $repayments = Repayment::with(['company', 'user'])
+// Build base query
+$query = Repayment::with(['company', 'user'])
     ->join('users', 'repayments.user_id', '=', 'users.id')
     ->when($request->company_id, fn($q) => $q->where('repayments.company_id', $request->company_id))
     ->when($request->month, fn($q) => $q->where('repayments.month', $request->month))
     ->when($request->year, fn($q) => $q->where('repayments.year', $request->year))
     ->when($request->status !== null && $request->status !== '', fn($q) => $q->where('repayments.status', $request->status))
-    ->when($request->user_id, fn($q) => $q->where('repayments.user_id', $request->user_id)) // ✅ User filter added
+    ->when($request->user_id, fn($q) => $q->where('repayments.user_id', $request->user_id))
     ->orderBy('users.first_name', 'asc')
-    ->select('repayments.*')
-    ->paginate(20)
-    ->appends($request->all());
+    ->select('repayments.*');
 
+// Paginate
+$repayments = $query->paginate(100)->appends($request->all());
 
+// Clone for summary
+$summaryQuery = (clone $query)
+    ->selectRaw('repayments.status, SUM(repayments.installments) as total')
+    ->groupBy('repayments.status')
+    ->pluck('total', 'repayments.status');
 
-
-
-
-
-// Clone query for summary (to avoid pagination limitation)
-$summaryQuery = (clone $query)->selectRaw('status, SUM(installments) as total')
-    ->groupBy('status')
-    ->pluck('total', 'status');
-
-// Normalize result into summary array
+// Normalize summary
 $summary = [
-    'pending' => $summaryQuery[0] ?? 0,
-    'paid' => $summaryQuery[1] ?? 0,
-    'written_off' => $summaryQuery[4] ?? 0,
+    'pending' => $summaryQuery[0] ?? 0,       // assuming status 0 = pending
+    'paid' => $summaryQuery[1] ?? 0,          // assuming status 1 = paid
+    'written_off' => $summaryQuery[4] ?? 0,   // assuming status 4 = written-off
 ];
+
 
 
 

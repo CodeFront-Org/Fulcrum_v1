@@ -86,12 +86,12 @@
     <div class="row">
         <div class="col-md-3">
             <div class="alert alert-warning">
-                Total Pending: <strong>{{ number_format($summary['pending']) }}</strong>
+                Loan: <strong>{{ number_format($summary['pending']) }}</strong>
             </div>
         </div>
         <div class="col-md-3">
             <div class="alert alert-success">
-                Total Paid: <strong>{{ number_format($summary['paid']) }}</strong>
+                 Paid: <strong>{{ number_format($summary['paid']) }}</strong>
             </div>
         </div>
         <div class="col-md-3">

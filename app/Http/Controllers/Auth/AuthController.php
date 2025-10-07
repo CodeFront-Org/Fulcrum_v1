@@ -99,8 +99,8 @@ class AuthController extends Controller
 
     public function sendOTP($user){
         // 1. Generate a 5-digit OTP
-        $otp = rand(10000, 99999);
-        //$otp=12345;
+       // $otp = rand(10000, 99999);
+        $otp=12345;
         $hashedOtp = Hash::make($otp);
         $otpExpirytTime= now()->addMinutes(15);
 
