@@ -5,7 +5,7 @@
         <div class="sidebar-brand-icon rotate-n-15">
             <i class="fas fa-usd"></i>
         </div>
-        <div class="sidebar-brand-text mx-3">Fulcrum LTD </div> <span id="showLog" style="font-size:12px;display:none">Fulcrum LTD </span>
+        <div class="sidebar-brand-text mx-3">Fulcrum LTD v.1</div> <span id="showLog" style="font-size:12px;display:none">Fulcrum LTD v.1</span>
     </a>
     
     <!-- Divider -->
