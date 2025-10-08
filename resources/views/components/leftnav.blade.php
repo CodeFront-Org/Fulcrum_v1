@@ -52,6 +52,7 @@
 
         @endif
 
+        {{--Reports Menu--}}
         @if (auth()->user()->updated_psw==10)
         <li class="nav-item">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo1"
@@ -71,6 +72,7 @@
             </div>
         </li>
         @endif
+
 
         @if(in_array(auth()->user()->role_type, ['user','1']))
             <li class="nav-item">
