@@ -58,16 +58,16 @@
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo1"
                 aria-expanded="true" aria-controls="collapseTwo">
                 <i class="fas fa-fw fa-chart-area"></i>
-                <span>Reports</span>
+                <span>1.Reports</span>
             </a>
             <div id="collapseTwo1" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
-                    <a class="collapse-item" href="{{route('repayments.index')}}">Repayments</a>
+                    <a class="collapse-item" href="{{route('repayments.index')}}">2.Repayments</a>
                    {{-- <a class="collapse-item" href="{{route('loans')}}">Loans</a>
                      <a class="collapse-item" href="{{route('all-invoices')}}">Invoices</a>
                     <a class="collapse-item" href="{{route('scheme-perfomance')}}">Scheme Perfomance</a> --}}
-                    <a class="collapse-item" href="{{route('disbursement-report')}}">Disbursements</a>
-                    <a class="collapse-item" href="{{route('profitability-report')}}">Profitability</a>
+                    <a class="collapse-item" href="{{route('disbursement-report')}}">3.Disbursements</a>
+                    <a class="collapse-item" href="{{route('profitability-report')}}">4.Profitability</a>
                 </div>
             </div>
         </li>
