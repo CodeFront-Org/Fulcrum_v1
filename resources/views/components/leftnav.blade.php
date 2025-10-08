@@ -62,9 +62,9 @@
             <div id="collapseTwo1" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <a class="collapse-item" href="{{route('repayments.index')}}">Repayments</a>
-                    <a class="collapse-item" href="{{route('loans')}}">Loans</a>
-                    <a class="collapse-item" href="{{route('all-invoices')}}">Invoices</a>
-                    <a class="collapse-item" href="{{route('scheme-perfomance')}}">Scheme Perfomance</a>
+                   {{-- <a class="collapse-item" href="{{route('loans')}}">Loans</a>
+                     <a class="collapse-item" href="{{route('all-invoices')}}">Invoices</a>
+                    <a class="collapse-item" href="{{route('scheme-perfomance')}}">Scheme Perfomance</a> --}}
                     <a class="collapse-item" href="{{route('disbursement-report')}}">Disbursements</a>
                     <a class="collapse-item" href="{{route('profitability-report')}}">Profitability</a>
                 </div>

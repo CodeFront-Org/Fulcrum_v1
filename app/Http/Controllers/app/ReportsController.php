@@ -938,7 +938,7 @@ class ReportsController extends Controller
             {$havingClause}
             {$orderBy}";
             
-        $perPage = 10;
+        $perPage = 100;
         $page = $request->get('page', 1);
         $offset = ($page - 1) * $perPage;
         

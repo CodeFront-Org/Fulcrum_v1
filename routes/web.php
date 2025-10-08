@@ -78,19 +78,35 @@ Route::post('/delete-admin',[\App\Http\Controllers\app\UserController::class,'de
 
 
 //*******************Report Admin routes *******************///
-Route::get('/all-invoices',[\App\Http\Controllers\app\ReportsController::class,'all_invoices'])->name('all-invoices')->middleware('admin');
-Route::get('/scheme-report/{name}',[\App\Http\Controllers\app\ReportsController::class,'scheme_report'])->name('scheme-report')->middleware('admin');
-Route::get('/invoice-report/{id}',[\App\Http\Controllers\app\ReportsController::class,'invoice_report'])->name('invoice-report')->middleware('admin');
-Route::post('/payment_status',[\App\Http\Controllers\app\ReportsController::class,'payment_status'])->name('payment_status')->middleware('admin');
-Route::post('/partial_payment',[\App\Http\Controllers\app\ReportsController::class,'partial_payment'])->name('partial_payment')->middleware('admin');
-Route::get('/payment_schedule',[\App\Http\Controllers\app\ReportsController::class,'payment_schedule'])->name('payment_schedule');
-Route::get('/loan-requests',[\App\Http\Controllers\app\LoanController::class,'loan_requests'])->name('loan-requests')->middleware('admin');
-Route::get('/loans',[\App\Http\Controllers\app\ReportsController::class,'loans'])->name('loans')->middleware('admin');//View loans 
-Route::get('/scheme-perfomance',[\App\Http\Controllers\app\ReportsController::class,'scheme_report'])->name('scheme-perfomance')->middleware('admin');
-Route::get('/disbursement-report',[\App\Http\Controllers\app\ReportsController::class,'disbursement_report'])->name('disbursement-report')->middleware('admin');
-Route::get('/profitability-report',[\App\Http\Controllers\app\ReportsController::class,'profitability_report'])->name('profitability-report')->middleware('admin');
-Route::get('/repayment-schedule-pdf/{scheme_id}',[\App\Http\Controllers\app\RepaymentScheduleController::class,'generatePDF'])->name('repayment-schedule-pdf')->middleware('admin');
-Route::get('/repayment-schedule-excel/{scheme_id}',[\App\Http\Controllers\app\RepaymentScheduleController::class,'generateExcel'])->name('repayment-schedule-excel')->middleware('admin');
+// Group all routes requiring 'admin' middleware
+//Route::middleware('admin')->group(function () {
+
+    // ReportsController routes
+    Route::controller(\App\Http\Controllers\app\ReportsController::class)->group(function () {
+        Route::get('/all-invoices', 'all_invoices')->name('all-invoices');
+        Route::get('/scheme-report/{name}', 'scheme_report')->name('scheme-report');
+        Route::get('/invoice-report/{id}', 'invoice_report')->name('invoice-report');
+        Route::post('/payment_status', 'payment_status')->name('payment_status');
+        Route::post('/partial_payment', 'partial_payment')->name('partial_payment');
+        Route::get('/loans', 'loans')->name('loans'); // View loans
+        Route::get('/scheme-perfomance', 'scheme_report')->name('scheme-perfomance');
+        Route::get('/disbursement-report', 'disbursement_report')->name('disbursement-report');
+        Route::get('/profitability-report', 'profitability_report')->name('profitability-report');
+    });
+
+    // LoanController routes
+    Route::get('/loan-requests', [\App\Http\Controllers\app\LoanController::class, 'loan_requests'])->name('loan-requests');
+
+    // RepaymentScheduleController routes
+    Route::controller(\App\Http\Controllers\app\RepaymentScheduleController::class)->group(function () {
+        Route::get('/repayment-schedule-pdf/{scheme_id}', 'generatePDF')->name('repayment-schedule-pdf');
+        Route::get('/repayment-schedule-excel/{scheme_id}', 'generateExcel')->name('repayment-schedule-excel');
+    });
+//});
+
+// Routes not requiring 'admin' middleware
+Route::get('/payment_schedule', [\App\Http\Controllers\app\ReportsController::class, 'payment_schedule'])->name('payment_schedule');
+
 Route::get('/search-user',[\App\Http\Controllers\app\SearchController::class,'search_user'])->name('search-user');
 
 //*******************End Report Admin routes *******************///
