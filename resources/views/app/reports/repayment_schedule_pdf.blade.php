@@ -31,8 +31,8 @@
                 <td>{{ $loan->user->first_name }} {{ $loan->user->last_name }}</td>
                 <td class="amount">{{ number_format($loan->requested_loan_amount, 2) }}</td>
                 <td>{{ $loan->created_at->format('Y-m-d') }}</td>
-                <td>10%</td>
-                <td>{{ $loan->payment_period }}</td>
+                <td>{{ $loan->interest_rate }}</td>
+                <td>{{ $loan->current_payment_period }} / {{ $loan->payment_period }}</td>
                 <td class="amount">{{ number_format($loan->amount_payable, 2) }}</td>
             </tr>
             @endforeach

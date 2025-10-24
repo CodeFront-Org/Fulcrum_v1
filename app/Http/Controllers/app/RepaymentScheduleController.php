@@ -26,6 +26,12 @@ class RepaymentScheduleController extends Controller
         }
         
         $loans = $query->get();
+        
+        // Calculate current payment period for each loan
+        foreach ($loans as $loan) {
+            $loan->current_payment_period = \App\Models\Repayment::where('loan_id', $loan->id)->count();
+        }
+        
         $pdf = PDF::loadView('app.reports.repayment_schedule_pdf', compact('company', 'loans'));
         return $pdf->download('repayment_schedule_' . $company->name . '.pdf');
     }
