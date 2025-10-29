@@ -29,7 +29,13 @@ class RepaymentScheduleController extends Controller
         
         // Calculate current payment period for each loan
         foreach ($loans as $loan) {
-            $loan->current_payment_period = \App\Models\Repayment::where('loan_id', $loan->id)->count();
+            $nextUnpaidPeriod = \App\Models\Repayment::where('loan_id', $loan->id)
+                ->where('status', 0)
+                ->orderBy('period')
+                ->first();
+            
+            $currentPeriod = $nextUnpaidPeriod ? $nextUnpaidPeriod->period : $loan->payment_period;
+            $loan->current_payment_period = $currentPeriod . '/' . $loan->payment_period;
         }
         
         $pdf = PDF::loadView('app.reports.repayment_schedule_pdf', compact('company', 'loans'));
