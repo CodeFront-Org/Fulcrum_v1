@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Company;
 use App\Models\Loan;
-use PDF;
+use Barryvdh\DomPDF\Facade\Pdf;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
@@ -60,7 +60,7 @@ class RepaymentScheduleController extends Controller
             $loan->current_payment_period = $currentPeriod . '/' . $loan->payment_period;
         }
         
-        $pdf = PDF::loadView('app.reports.repayment_schedule_pdf', compact('company', 'loans'));
+       $pdf = Pdf::loadView('app.reports.repayment_schedule_pdf', compact('company', 'loans'));
         return $pdf->download('repayment_schedule_' . $company->name . '.pdf');
     }
 
