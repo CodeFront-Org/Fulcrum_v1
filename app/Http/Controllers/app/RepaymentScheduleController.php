@@ -18,23 +18,45 @@ class RepaymentScheduleController extends Controller
         $company = Company::findOrFail($scheme_id);
         $query = Loan::with('user')->where('company_id', $scheme_id)->where('final_decision', 1);
         
-        if ($request->from_date) {
-            $query->where('created_at', '>=', $request->from_date);
-        }
-        if ($request->to_date) {
-            $query->where('created_at', '<=', $request->to_date);
+        if ($request->from_date || $request->to_date) {
+            $loanIds = \App\Models\Repayment::query();
+            
+            if ($request->from_date) {
+                $fromDate = \Carbon\Carbon::parse($request->from_date);
+                $loanIds->where(function($q) use ($fromDate) {
+                    $q->where('year', '>', $fromDate->year)
+                      ->orWhere(function($subQ) use ($fromDate) {
+                          $subQ->where('year', $fromDate->year)
+                               ->whereIn('month', ['September', 'October', 'November', 'December']);
+                      });
+                });
+            }
+            
+            if ($request->to_date) {
+                $toDate = \Carbon\Carbon::parse($request->to_date);
+                $loanIds->where(function($q) use ($toDate) {
+                    $q->where('year', '<', $toDate->year)
+                      ->orWhere(function($subQ) use ($toDate) {
+                          $subQ->where('year', $toDate->year)
+                               ->whereIn('month', ['September', 'October', 'November', 'December']);
+                      });
+                });
+            }
+            
+            $validLoanIds = $loanIds->pluck('loan_id')->unique();
+            $query->whereIn('id', $validLoanIds);
         }
         
         $loans = $query->get();
         
         // Calculate current payment period for each loan
         foreach ($loans as $loan) {
-            $nextUnpaidPeriod = \App\Models\Repayment::where('loan_id', $loan->id)
-                ->where('status', 0)
-                ->orderBy('period')
-                ->first();
+            $paidCount = \App\Models\Repayment::where('loan_id', $loan->id)
+                ->where('status', 1)
+                ->count();
             
-            $currentPeriod = $nextUnpaidPeriod ? $nextUnpaidPeriod->period : $loan->payment_period;
+            $currentPeriod = $paidCount + 1;
+            $currentPeriod = min($currentPeriod, $loan->payment_period);
             $loan->current_payment_period = $currentPeriod . '/' . $loan->payment_period;
         }
         

@@ -59,7 +59,7 @@
                 @endphp
                
                  <td>{{ $periods[$loan->payment_period]*100  ?? 'N/A' }}%</td>
-                <td>{{ $loan->current_payment_period }} / {{ $loan->payment_period }}</td>
+                <td>{{ $loan->current_payment_period }}</td>
                 <td class="amount">{{ number_format($loan->amount_payable, 2) }}</td>
             </tr>
             @endforeach
