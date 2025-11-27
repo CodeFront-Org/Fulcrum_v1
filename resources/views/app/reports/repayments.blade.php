@@ -231,9 +231,6 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" onclick="exportFile('pdf')">
-                        <i class="fas fa-file-pdf"></i> Export PDF
-                    </button>
                     <button type="button" class="btn btn-success" onclick="exportFile('excel')">
                         <i class="fas fa-file-excel"></i> Export Excel
                     </button>
