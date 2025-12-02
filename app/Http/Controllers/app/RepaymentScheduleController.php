@@ -70,10 +70,10 @@ class RepaymentScheduleController extends Controller
         $query = Loan::with('user')->where('company_id', $scheme_id)->where('final_decision', 1);
         
         if ($request->from_date) {
-            $query->where('created_at', '>=', $request->from_date);
+            $query->where('approver3_date', '>=', $request->from_date);
         }
         if ($request->to_date) {
-            $query->where('created_at', '<=', $request->to_date);
+            $query->where('approver3_date', '<=', $request->to_date);
         }
         
         $loans = $query->get();
@@ -108,7 +108,7 @@ class RepaymentScheduleController extends Controller
         $no = 1;
         foreach ($loans as $loan) {
             $paidCount = \App\Models\Repayment::where('loan_id', $loan->id)->where('status', 1)->count();
-            $currentPeriod = min($paidCount + 1, $loan->payment_period);
+            $currentPeriod = $paidCount + 1;
             
             $periods = [
                 0,
@@ -132,7 +132,7 @@ class RepaymentScheduleController extends Controller
             $sheet->setCellValue('B' . $row, $loan->user->first_name . ' ' . $loan->user->last_name);
             $sheet->setCellValue('C' . $row, $company->name);
             $sheet->setCellValue('D' . $row, $loan->requested_loan_amount);
-            $sheet->setCellValue('E' . $row, $loan->created_at->format('d/m/Y'));
+            $sheet->setCellValue('E' . $row, $loan->approver3_date ? \Carbon\Carbon::parse($loan->approver3_date)->format('d/m/Y') : '');
             $sheet->setCellValue('F' . $row, $loan->payment_period);
             $sheet->setCellValue('G' . $row, $interestRate);
             $sheet->setCellValue('H' . $row, $currentPeriod);
