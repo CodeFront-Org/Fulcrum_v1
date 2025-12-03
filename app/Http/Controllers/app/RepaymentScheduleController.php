@@ -34,7 +34,8 @@ class RepaymentScheduleController extends Controller
                     $fromDate = \Carbon\Carbon::parse($request->from_date);
                     $toDate = \Carbon\Carbon::parse($request->to_date);
                     
-                    $repaymentQ->where(function($dateQ) use ($fromDate, $toDate) {
+                    $repaymentQ->where('status', '!=', 3)
+                               ->where(function($dateQ) use ($fromDate, $toDate) {
                         $dateQ->whereBetween('year', [$fromDate->year, $toDate->year])
                               ->where(function($monthQ) use ($fromDate, $toDate) {
                                   if ($fromDate->year == $toDate->year) {
@@ -95,7 +96,8 @@ class RepaymentScheduleController extends Controller
                     $fromDate = \Carbon\Carbon::parse($request->from_date);
                     $toDate = \Carbon\Carbon::parse($request->to_date);
                     
-                    $repaymentQ->where(function($dateQ) use ($fromDate, $toDate) {
+                    $repaymentQ->where('status', '!=', 3)
+                               ->where(function($dateQ) use ($fromDate, $toDate) {
                         $dateQ->whereBetween('year', [$fromDate->year, $toDate->year])
                               ->where(function($monthQ) use ($fromDate, $toDate) {
                                   if ($fromDate->year == $toDate->year) {
@@ -152,6 +154,7 @@ class RepaymentScheduleController extends Controller
         
         foreach ($loans as $loan) {
             $repaymentInPeriod = \App\Models\Repayment::where('loan_id', $loan->id)
+                ->where('status', '!=', 3)
                 ->where(function($q) use ($fromDate, $toDate) {
                     if ($fromDate && $toDate) {
                         $q->whereBetween('year', [$fromDate->year, $toDate->year])
