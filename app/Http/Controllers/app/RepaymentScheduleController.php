@@ -59,18 +59,16 @@ class RepaymentScheduleController extends Controller
         
         // Calculate current payment period for each loan
         foreach ($loans as $loan) {
-            $disbursedDate = \Carbon\Carbon::parse($loan->approver3_date);
-            $isDisbursedInPeriod = $fromDate && $toDate && $disbursedDate->between($fromDate, $toDate);
+            $repaymentInPeriod = \App\Models\Repayment::where('loan_id', $loan->id)
+                ->where(function($q) use ($fromDate, $toDate) {
+                    if ($fromDate && $toDate) {
+                        $q->whereBetween('year', [$fromDate->year, $toDate->year])
+                          ->whereIn('month', $this->getMonthsBetween($fromDate, $toDate));
+                    }
+                })
+                ->first();
             
-            if ($isDisbursedInPeriod) {
-                $currentPeriod = 1;
-            } else {
-                $paidCount = \App\Models\Repayment::where('loan_id', $loan->id)
-                    ->where('status', 1)
-                    ->count();
-                $currentPeriod = $paidCount + 1;
-                $currentPeriod = min($currentPeriod, $loan->payment_period);
-            }
+            $currentPeriod = $repaymentInPeriod ? $repaymentInPeriod->period : 1;
             $loan->current_payment_period = $currentPeriod . '/' . $loan->payment_period;
         }
         
@@ -151,15 +149,16 @@ class RepaymentScheduleController extends Controller
         $toDate = $request->to_date ? \Carbon\Carbon::parse($request->to_date) : null;
         
         foreach ($loans as $loan) {
-            $disbursedDate = \Carbon\Carbon::parse($loan->approver3_date);
-            $isDisbursedInPeriod = $fromDate && $toDate && $disbursedDate->between($fromDate, $toDate);
+            $repaymentInPeriod = \App\Models\Repayment::where('loan_id', $loan->id)
+                ->where(function($q) use ($fromDate, $toDate) {
+                    if ($fromDate && $toDate) {
+                        $q->whereBetween('year', [$fromDate->year, $toDate->year])
+                          ->whereIn('month', $this->getMonthsBetween($fromDate, $toDate));
+                    }
+                })
+                ->first();
             
-            if ($isDisbursedInPeriod) {
-                $currentPeriod = 1;
-            } else {
-                $paidCount = \App\Models\Repayment::where('loan_id', $loan->id)->where('status', 1)->count();
-                $currentPeriod = $paidCount + 1;
-            }
+            $currentPeriod = $repaymentInPeriod ? $repaymentInPeriod->period : 1;
             
             $periods = [
                 0,
@@ -186,8 +185,10 @@ class RepaymentScheduleController extends Controller
             $sheet->setCellValue('E' . $row, $loan->approver3_date ? \Carbon\Carbon::parse($loan->approver3_date)->format('d/m/Y') : '');
             $sheet->setCellValue('F' . $row, $loan->payment_period);
             $sheet->setCellValue('G' . $row, $interestRate);
+            $installmentAmount = $repaymentInPeriod ? $repaymentInPeriod->installments : $loan->monthly_installments;
+            
             $sheet->setCellValue('H' . $row, $currentPeriod);
-            $sheet->setCellValue('I' . $row, $loan->amount_payable);
+            $sheet->setCellValue('I' . $row, $installmentAmount);
             
             $row++;
             $no++;
