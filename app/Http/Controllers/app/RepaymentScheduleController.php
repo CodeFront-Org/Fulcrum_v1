@@ -19,14 +19,17 @@ class RepaymentScheduleController extends Controller
         $query = Loan::with('user')->where('company_id', $scheme_id)->where('final_decision', 1);
         
         if ($request->from_date || $request->to_date) {
-            if ($request->from_date) {
-                $query->where('approver3_date', '>=', $request->from_date);
-            }
-            if ($request->to_date) {
-                $query->where('approver3_date', '<=', $request->to_date);
-            }
-            
-            $query->whereHas('repayments', function($repaymentQ) use ($request) {
+            $query->where(function($q) use ($request) {
+                $q->where(function($subQ) use ($request) {
+                    if ($request->from_date) {
+                        $subQ->where('approver3_date', '>=', $request->from_date);
+                    }
+                    if ($request->to_date) {
+                        $subQ->where('approver3_date', '<=', $request->to_date);
+                    }
+                });
+                
+                $q->orWhereHas('repayments', function($repaymentQ) use ($request) {
                 if ($request->from_date && $request->to_date) {
                     $fromDate = \Carbon\Carbon::parse($request->from_date);
                     $toDate = \Carbon\Carbon::parse($request->to_date);
@@ -49,6 +52,7 @@ class RepaymentScheduleController extends Controller
                               });
                     });
                 }
+                });
             });
         }
         
@@ -59,16 +63,10 @@ class RepaymentScheduleController extends Controller
         
         // Calculate current payment period for each loan
         foreach ($loans as $loan) {
-            $repaymentInPeriod = \App\Models\Repayment::where('loan_id', $loan->id)
-                ->where(function($q) use ($fromDate, $toDate) {
-                    if ($fromDate && $toDate) {
-                        $q->whereBetween('year', [$fromDate->year, $toDate->year])
-                          ->whereIn('month', $this->getMonthsBetween($fromDate, $toDate));
-                    }
-                })
-                ->first();
-            
-            $currentPeriod = $repaymentInPeriod ? $repaymentInPeriod->period : 1;
+            $disbursedDate = \Carbon\Carbon::parse($loan->approver3_date);
+            $reportMonth = $toDate ?? \Carbon\Carbon::now();
+            $monthsElapsed = $disbursedDate->diffInMonths($reportMonth) + 1;
+            $currentPeriod = min($monthsElapsed, $loan->payment_period);
             $loan->current_payment_period = $currentPeriod . '/' . $loan->payment_period;
         }
         
@@ -82,14 +80,17 @@ class RepaymentScheduleController extends Controller
         $query = Loan::with('user')->where('company_id', $scheme_id)->where('final_decision', 1);
         
         if ($request->from_date || $request->to_date) {
-            if ($request->from_date) {
-                $query->where('approver3_date', '>=', $request->from_date);
-            }
-            if ($request->to_date) {
-                $query->where('approver3_date', '<=', $request->to_date);
-            }
-            
-            $query->whereHas('repayments', function($repaymentQ) use ($request) {
+            $query->where(function($q) use ($request) {
+                $q->where(function($subQ) use ($request) {
+                    if ($request->from_date) {
+                        $subQ->where('approver3_date', '>=', $request->from_date);
+                    }
+                    if ($request->to_date) {
+                        $subQ->where('approver3_date', '<=', $request->to_date);
+                    }
+                });
+                
+                $q->orWhereHas('repayments', function($repaymentQ) use ($request) {
                 if ($request->from_date && $request->to_date) {
                     $fromDate = \Carbon\Carbon::parse($request->from_date);
                     $toDate = \Carbon\Carbon::parse($request->to_date);
@@ -112,6 +113,7 @@ class RepaymentScheduleController extends Controller
                               });
                     });
                 }
+                });
             });
         }
         
@@ -158,7 +160,10 @@ class RepaymentScheduleController extends Controller
                 })
                 ->first();
             
-            $currentPeriod = $repaymentInPeriod ? $repaymentInPeriod->period : 1;
+            $disbursedDate = \Carbon\Carbon::parse($loan->approver3_date);
+            $reportMonth = $toDate ?? \Carbon\Carbon::now();
+            $monthsElapsed = $disbursedDate->diffInMonths($reportMonth) + 1;
+            $currentPeriod = min($monthsElapsed, $loan->payment_period);
             
             $periods = [
                 0,
