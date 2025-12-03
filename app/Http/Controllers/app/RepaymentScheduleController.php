@@ -19,44 +19,58 @@ class RepaymentScheduleController extends Controller
         $query = Loan::with('user')->where('company_id', $scheme_id)->where('final_decision', 1);
         
         if ($request->from_date || $request->to_date) {
-            $loanIds = \App\Models\Repayment::query();
-            
             if ($request->from_date) {
-                $fromDate = \Carbon\Carbon::parse($request->from_date);
-                $loanIds->where(function($q) use ($fromDate) {
-                    $q->where('year', '>', $fromDate->year)
-                      ->orWhere(function($subQ) use ($fromDate) {
-                          $subQ->where('year', $fromDate->year)
-                               ->whereIn('month', ['September', 'October', 'November', 'December']);
-                      });
-                });
+                $query->where('approver3_date', '>=', $request->from_date);
             }
-            
             if ($request->to_date) {
-                $toDate = \Carbon\Carbon::parse($request->to_date);
-                $loanIds->where(function($q) use ($toDate) {
-                    $q->where('year', '<', $toDate->year)
-                      ->orWhere(function($subQ) use ($toDate) {
-                          $subQ->where('year', $toDate->year)
-                               ->whereIn('month', ['September', 'October', 'November', 'December']);
-                      });
-                });
+                $query->where('approver3_date', '<=', $request->to_date);
             }
             
-            $validLoanIds = $loanIds->pluck('loan_id')->unique();
-            $query->whereIn('id', $validLoanIds);
+            $query->whereHas('repayments', function($repaymentQ) use ($request) {
+                if ($request->from_date && $request->to_date) {
+                    $fromDate = \Carbon\Carbon::parse($request->from_date);
+                    $toDate = \Carbon\Carbon::parse($request->to_date);
+                    
+                    $repaymentQ->where(function($dateQ) use ($fromDate, $toDate) {
+                        $dateQ->whereBetween('year', [$fromDate->year, $toDate->year])
+                              ->where(function($monthQ) use ($fromDate, $toDate) {
+                                  if ($fromDate->year == $toDate->year) {
+                                      $monthQ->whereIn('month', $this->getMonthsBetween($fromDate, $toDate));
+                                  } else {
+                                      $monthQ->where(function($q) use ($fromDate, $toDate) {
+                                          $q->where('year', $fromDate->year)
+                                            ->whereIn('month', $this->getMonthsFrom($fromDate))
+                                            ->orWhere(function($q2) use ($toDate) {
+                                                $q2->where('year', $toDate->year)
+                                                   ->whereIn('month', $this->getMonthsUntil($toDate));
+                                            });
+                                      });
+                                  }
+                              });
+                    });
+                }
+            });
         }
         
         $loans = $query->get();
         
+        $fromDate = $request->from_date ? \Carbon\Carbon::parse($request->from_date) : null;
+        $toDate = $request->to_date ? \Carbon\Carbon::parse($request->to_date) : null;
+        
         // Calculate current payment period for each loan
         foreach ($loans as $loan) {
-            $paidCount = \App\Models\Repayment::where('loan_id', $loan->id)
-                ->where('status', 1)
-                ->count();
+            $disbursedDate = \Carbon\Carbon::parse($loan->approver3_date);
+            $isDisbursedInPeriod = $fromDate && $toDate && $disbursedDate->between($fromDate, $toDate);
             
-            $currentPeriod = $paidCount + 1;
-            $currentPeriod = min($currentPeriod, $loan->payment_period);
+            if ($isDisbursedInPeriod) {
+                $currentPeriod = 1;
+            } else {
+                $paidCount = \App\Models\Repayment::where('loan_id', $loan->id)
+                    ->where('status', 1)
+                    ->count();
+                $currentPeriod = $paidCount + 1;
+                $currentPeriod = min($currentPeriod, $loan->payment_period);
+            }
             $loan->current_payment_period = $currentPeriod . '/' . $loan->payment_period;
         }
         
@@ -69,11 +83,38 @@ class RepaymentScheduleController extends Controller
         $company = Company::findOrFail($scheme_id);
         $query = Loan::with('user')->where('company_id', $scheme_id)->where('final_decision', 1);
         
-        if ($request->from_date) {
-            $query->where('approver3_date', '>=', $request->from_date);
-        }
-        if ($request->to_date) {
-            $query->where('approver3_date', '<=', $request->to_date);
+        if ($request->from_date || $request->to_date) {
+            if ($request->from_date) {
+                $query->where('approver3_date', '>=', $request->from_date);
+            }
+            if ($request->to_date) {
+                $query->where('approver3_date', '<=', $request->to_date);
+            }
+            
+            $query->whereHas('repayments', function($repaymentQ) use ($request) {
+                if ($request->from_date && $request->to_date) {
+                    $fromDate = \Carbon\Carbon::parse($request->from_date);
+                    $toDate = \Carbon\Carbon::parse($request->to_date);
+                    
+                    $repaymentQ->where(function($dateQ) use ($fromDate, $toDate) {
+                        $dateQ->whereBetween('year', [$fromDate->year, $toDate->year])
+                              ->where(function($monthQ) use ($fromDate, $toDate) {
+                                  if ($fromDate->year == $toDate->year) {
+                                      $monthQ->whereIn('month', $this->getMonthsBetween($fromDate, $toDate));
+                                  } else {
+                                      $monthQ->where(function($q) use ($fromDate, $toDate) {
+                                          $q->where('year', $fromDate->year)
+                                            ->whereIn('month', $this->getMonthsFrom($fromDate))
+                                            ->orWhere(function($q2) use ($toDate) {
+                                                $q2->where('year', $toDate->year)
+                                                   ->whereIn('month', $this->getMonthsUntil($toDate));
+                                            });
+                                      });
+                                  }
+                              });
+                    });
+                }
+            });
         }
         
         $loans = $query->get();
@@ -106,9 +147,19 @@ class RepaymentScheduleController extends Controller
         // Data
         $row = 8;
         $no = 1;
+        $fromDate = $request->from_date ? \Carbon\Carbon::parse($request->from_date) : null;
+        $toDate = $request->to_date ? \Carbon\Carbon::parse($request->to_date) : null;
+        
         foreach ($loans as $loan) {
-            $paidCount = \App\Models\Repayment::where('loan_id', $loan->id)->where('status', 1)->count();
-            $currentPeriod = $paidCount + 1;
+            $disbursedDate = \Carbon\Carbon::parse($loan->approver3_date);
+            $isDisbursedInPeriod = $fromDate && $toDate && $disbursedDate->between($fromDate, $toDate);
+            
+            if ($isDisbursedInPeriod) {
+                $currentPeriod = 1;
+            } else {
+                $paidCount = \App\Models\Repayment::where('loan_id', $loan->id)->where('status', 1)->count();
+                $currentPeriod = $paidCount + 1;
+            }
             
             $periods = [
                 0,
@@ -171,5 +222,27 @@ class RepaymentScheduleController extends Controller
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="' . $filename . '"');
         $writer->save('php://output');
+    }
+    
+    private function getMonthsBetween($fromDate, $toDate)
+    {
+        $months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        $fromMonth = (int)$fromDate->format('n');
+        $toMonth = (int)$toDate->format('n');
+        return array_slice($months, $fromMonth - 1, $toMonth - $fromMonth + 1);
+    }
+    
+    private function getMonthsFrom($fromDate)
+    {
+        $months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        $fromMonth = (int)$fromDate->format('n');
+        return array_slice($months, $fromMonth - 1);
+    }
+    
+    private function getMonthsUntil($toDate)
+    {
+        $months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        $toMonth = (int)$toDate->format('n');
+        return array_slice($months, 0, $toMonth);
     }
 }
