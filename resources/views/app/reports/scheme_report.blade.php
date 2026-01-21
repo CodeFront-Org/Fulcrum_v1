@@ -1,301 +1,314 @@
 @extends('layouts.app')
 
+@section('css')
+    <style>
+        .report-card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+
+        .filter-glass {
+            background: #f8fafc;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            padding: 24px;
+            margin-bottom: 2rem;
+        }
+
+        .form-control-modern {
+            border-radius: 10px;
+            padding: 10px 16px;
+            border: 1px solid #e2e8f0;
+            font-size: 0.9rem;
+        }
+
+        .summary-pill {
+            padding: 12px 20px;
+            border-radius: 12px;
+            background: white;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .summary-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .summary-value {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #1e293b;
+        }
+
+        .modern-table thead th {
+            background-color: #f8fafc !important;
+            color: #64748b;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 16px 12px !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+        }
+
+        .modern-table tbody td {
+            padding: 14px 12px !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+            font-size: 0.85rem;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+
+        .status-paid {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-unpaid {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-partial {
+            background: #fffbeb;
+            color: #92400e;
+        }
+
+        .btn-modern {
+            border-radius: 10px;
+            font-weight: 600;
+            padding: 8px 20px;
+            transition: all 0.2s;
+        }
+
+        .glass-modal .modal-content {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+    </style>
+@endsection
+
 @section('content')
-@if (session()->has('message'))
-    <div id="toast" class="alert text-center alert-success alert-dismissible w-100 fade show" role="alert">
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        {{ session('message') }}
-    </div>
-@endif
-
-@if (session()->has('error'))
-    <div id="toast" class="alert text-center alert-danger alert-dismissible w-100 fade show" role="alert">
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        {{ session('error') }}
-    </div>
-@endif
-
-<form method="GET" action="#">
-    <div class="row">
-
-    <div class="row">
-        <div class="mb-3 col-md-3">
-            <label for="To">Schemes</label>
-            @php
-            use App\Models\Company;
-                $companies = Company::select('id','name')->get();
-
-            @endphp
-
-            <input type="text" list="regnoo" parsley-trigger="change" required class="form-control"
-            id="reg_no" name='company' value="" placeholder="Select company ..." aria-label="Recipient's username"
-            id="top-search" autocomplete="off" />
-    
-    <datalist id="regnoo">
-        @foreach ($companies as $company)
-            <option value="{{ $company->name }}">{{ $company->name }}</option>
-        @endforeach
-    </datalist>
-        </div>
-        <div class="mb-3 col-md-2">
-            <label for="from">From:</label>
-            <select name="from" class="form-control form-select" id="from" required>
-                <option disabled selected>Select Month</option>
-                <option value="01">January</option>
-                <option value="02">February</option>
-                <option value="03">March</option>
-                <option value="04">April</option>
-                <option value="05">May</option>
-                <option value="06">June</option>
-                <option value="07">July</option>
-                <option value="08">August</option>
-                <option value="09">September</option>
-                <option value="10">October</option>
-                <option value="11">November</option>
-                <option value="12">December</option>
-            </select>
-        </div>
-        
-        <div class="mb-3 col-md-2">
-            <label for="to">To:</label>
-            <select name="to" class="form-control form-select" id="to" required>
-                <option disabled selected>Select Month</option>
-                <option value="01">January</option>
-                <option value="02">February</option>
-                <option value="03">March</option>
-                <option value="04">April</option>
-                <option value="05">May</option>
-                <option value="06">June</option>
-                <option value="07">July</option>
-                <option value="08">August</option>
-                <option value="09">September</option>
-                <option value="10">October</option>
-                <option value="11">November</option>
-                <option value="12">December</option>
-            </select>
-        </div>
-        <div class="mb-3 col-md-2">
-            <label for="from">Year:</label>
-            <select name="year" class="form-control form-select" required>
-                <option value="2024">2024</option>
-            </select>
-        </div>        
-        <div class="mb-3 col-md-3" style="margin-top: 2.65%">
-            <button type="submit" class="btn btn-primary waves-effect waves-light">Submit</button>
-        </div>
-        
-    </div>
-
-
-</form>
-
-<div class="card shadow mb-4">
-    <div class="card-header py-3 text-center">
-        <h6 class="m-0 font-weight-bold text-primary">
-              Codefront Loan Requests for period1 {{$for_date}}
-            </h6>
-          </div>
-          <div class="card-body">
-            <div class="table-responsive">
-                <table
-                  class="table table-bordered"
-                  id="dataTable"
-                  width="100%"
-                  cellspacing="0"
-                  style="font-size:13px;text-align:center;white-space:nowrap;"
-                >
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Invoice ID</th>
-                    <th>Requests</th>
-                    <th>Monthly Installment</th>
-                    <th>Tot Loan Amount</th>
-                    <th>Tot Interest</th>
-                    <th>Tot Payable</th>
-                    <th>Status</th>
-                    <th>Date paid</th>
-                    <th>Payments</th>
-                  </tr>
-                </thead>
-                <tbody>
-                    @foreach ($data as $item)
-                        <tr>
-                            <td>{{$loop->index+1}}. </td>
-                            <td><a href="{{route('invoice-report',['id'=>'2'])}}">{{$item['invoice_number']}}</a></td>
-                            <td>{{$item['requests']}}</td>
-                            <td>{{number_format($item['mi'])}}</td>
-                            <td>{{number_format($item['loan_amt'])}}</td>
-                            <td>{{number_format($item['interest'])}}</td>
-                            <td>{{number_format($item['amt_payable'])}}</td>
-                            @if ($item['status']==1)
-                                <td class="text-success">Paid</td>
-                            @endif
-                            @if ($item['status']==2)
-                                <td class="text-danger">Not Paid</td>
-                            @endif
-                            @if ($item['status']==3)
-                                <td class="text-warning">Partially Paid</td>
-                            @endif
-                            <td>{{$item['date_paid']}}</td>
-                            <td>
-                                <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#approval-m-{{$item['invoice_number']}}">
-                                Action <i class='fas fa-check-circle' aria-hidden='true'></i>
-                                </button>
-                            </td>
-                        </tr>
-                    @endforeach
-                    <tr>
-                        <td colspan="8" style="text-align:right;font-weight:bold">Total Loan Requested</td>
-                        <td colspan="2">{{number_format($tot_loan)}}</td>
-                    </tr>
-                    <tr>
-                        <td colspan="8" style="text-align:right;font-weight:bold">Total Expected Repayment</td>
-                        <td colspan="2">{{number_format($tot_expected_payments)}}</td>
-                    </tr>
-                    <tr>
-                        <td colspan="8" style="text-align:right;font-weight:bold">Expected Monthly Installments</td>
-                        <td colspan="2">{{number_format($tot_monthly_installments)}}</td>
-                    </tr>
-                    <tr>
-                        <td colspan="8" style="text-align:right;font-weight:bold">Total Amount Paid</td>
-                        <td colspan="2">{{number_format($tot_amt_paid)}}</td>
-                    </tr>
-                    {{-- <tr>
-                        <td colspan="8" style="text-align:right;font-weight:bold">Net<span class="text-success"> Profit</span> / <span class="text-danger">Loss</span></td>
-                        @if ($net)
-                            <td colspan="2" class="text-success">{{number_format($netpl)}}</td>
-                        @else
-                            <td colspan="2" class="text-danger">{{number_format($netpl)}}</td>  
-                        @endif
-                    </tr>
-                    <tr style="font-weight:bolder;">
-                        <td colspan="8" style="text-align:right;font-weight:bold">Report summary</td>
-                        @if ($net)
-                            <td colspan="2" style="border:solid 2px black" class="text-success">Profit</td>
-                        @else
-                        <td colspan="2" style="border:solid 2px black" class="text-danger">Loss</td>  
-                        @endif
-                    </tr> --}}
-
-                </tbody>
-              </table>
+    <div class="container-fluid py-4">
+        <div class="row align-items-center mb-4">
+            <div class="col">
+                <h1 class="h3 mb-0 text-gray-800 font-weight-bold">Scheme Performance Report</h1>
+                <p class="text-muted mb-0">Invoice summaries and collection tracking for partner entities.</p>
             </div>
-          </div>
         </div>
 
+        @if (session()->has('message'))
+            <div class="alert alert-success border-0 shadow-sm mb-4" style="border-radius: 12px;">
+                <i class="fas fa-check-circle mr-2"></i> {{ session('message') }}
+            </div>
+        @endif
 
+        <!-- Filter Console -->
+        <div class="filter-glass shadow-sm">
+            <form method="GET" action="#">
+                <div class="row gx-3 gy-3">
+                    <div class="col-md-3">
+                        <label class="small font-weight-bold text-muted">Organization Scheme</label>
+                        @php
+                            $companies = \App\Models\Company::select('id', 'name')->get();
+                        @endphp
+                        <input type="text" list="regnoo" name='company' class="form-control form-control-modern"
+                            placeholder="Type scheme name..." required autocomplete="off">
+                        <datalist id="regnoo">
+                            @foreach ($companies as $company)
+                                <option value="{{ $company->name }}">{{ $company->name }}</option>
+                            @endforeach
+                        </datalist>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="small font-weight-bold text-muted">From Month</label>
+                        <select name="from" class="form-control form-control-modern custom-select" required>
+                            @foreach(['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] as $idx => $m)
+                                <option value="{{sprintf('%02d', $idx + 1)}}">{{$m}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="small font-weight-bold text-muted">To Month</label>
+                        <select name="to" class="form-control form-control-modern custom-select" required>
+                            @foreach(['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] as $idx => $m)
+                                <option value="{{sprintf('%02d', $idx + 1)}}">{{$m}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="small font-weight-bold text-muted">Year</label>
+                        <select name="year" class="form-control form-control-modern custom-select" required>
+                            <option value="2024">2024</option>
+                            <option value="2023">2023</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary btn-block btn-modern shadow-sm"><i
+                                class="fas fa-sync-alt mr-2"></i>Generate Analytics</button>
+                    </div>
+                </div>
+            </form>
+        </div>
 
-<!-- Approve Modal-->   
-@foreach ($data as $item)            
-<div class="modal fade" id="approval-m-{{$item['invoice_number']}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-aria-hidden="true">
-<div class="modal-dialog modal-dialog-centered" role="document">
-   <div class="modal-content">
-       <div class="modal-header">
-           <h5 class="modal-title text-success" id="exampleModalLabel">Invoice ID:  {{$item['invoice_number']}}</h5>
-           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-               <span aria-hidden="true">×</span>
-           </button>
-       </div>
-       <div class="modal-body">
-           <form action="{{route('payment_status')}}" method="POST">
-              @method('POST')
-              @csrf
-              <input type="hidden" name="invoice_number" value="{{$item['invoice_number']}}">
-              <input type="hidden" name="company_id" value="{{$item['scheme_id']}}">
-              <input type="hidden" name="loan_requests" value="{{$item['requests']}}">
-              <input type="hidden" name="loan_amt" value="{{$tot_loan}}">
-              <input type="hidden" name="tot_expected_payments" value="{{$tot_expected_payments}}">
-              <input type="hidden" name="tot_amt_paid" value="{{$tot_amt_paid}}">
-              <input type="hidden" name="invoice_date" value="{{$date_selected}}">
-              <div class="row">
-               <div class="col-md-12">
-                   <div class="mb-3">
-                       <label class="form-label">Payment Status</label>
-                       <select name="payment_status" class="form-control form-select" id="paymentStatus">
-                           <option value="" selected disabled>Select one</option>
-                           <option value="1">Paid</option>
-                           <option value="2">UnPaid</option>
-                           <option value="3">Partially Paid</option>
-                       </select>
-                   </div>
-               </div>
-           </div>
-           
-           <div class="row" id="amountPaidRow" style="display: none;">
-               <div class="col-md-12">
-                   <div class="mb-3">
-                       <label class="form-label">Amount Paid</label>
-                       <input type="number" name="amount_paid" min="1" class="form-control">
-                   </div>
-               </div>
-           </div>
-
-           
-           <div class="row" id="datePaidRow" style="display: none;">
-            <div class="col-md-12">
-                <div class="mb-3">
-                    <label class="form-label">Date Paid</label>
-                    <input type="date" name="date_paid" class="form-control">
+        <!-- Metric Grid -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="summary-pill shadow-sm">
+                    <div class="summary-label">Gross Requested</div>
+                    <div class="summary-value">KES {{number_format($tot_loan)}}</div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="summary-pill shadow-sm">
+                    <div class="summary-label">Expected Collections</div>
+                    <div class="summary-value">KES {{number_format($tot_expected_payments)}}</div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="summary-pill shadow-sm">
+                    <div class="summary-label">Total Amount Paid</div>
+                    <div class="summary-value text-success">KES {{number_format($tot_amt_paid)}}</div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="summary-pill shadow-sm">
+                    <div class="summary-label">Monthly Run Rate</div>
+                    <div class="summary-value text-primary">KES {{number_format($tot_monthly_installments)}}</div>
                 </div>
             </div>
         </div>
-           
-           <div class="row" id="messageLabel" style="display: none;">
-               <label for="labell" class="text-danger">Click Proceed to continue.</label>
-           </div>
-           
-           <div class="row" id="commentsRow" style="display: none;">
-               <div class="col-md-12 mt-1">
-                   <div class="mb-3">
-                       <label for="field-2" class="form-label">Comments</label>
-                       <textarea id="textarea" name="desc" class="form-control" required maxlength="3000" rows="3" placeholder="Comments"></textarea>
-                   </div>
-               </div>
-           </div>
 
-       </div>
-       <div class="modal-footer">
-           <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-           <button class="btn btn-success" type="submit">Proceed</button>
-       </div>
-   </div>
-</form>
-</div>
-</div>
-@endforeach  
-<!-- End Approval Modal-->
+        <!-- Ledger Card -->
+        <div class="card report-card shadow-sm overflow-hidden mb-4">
+            <div class="card-header bg-white py-3 border-0">
+                <h6 class="m-0 font-weight-bold text-gray-800">Invoice Registry: <span
+                        class="text-primary">{{$for_date}}</span></h6>
+            </div>
+            <div class="table-responsive">
+                <table class="table modern-table mb-0" id="schemeTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Invoice Reference</th>
+                            <th>Requests</th>
+                            <th class="text-right">MI (Expected)</th>
+                            <th class="text-right">Principal</th>
+                            <th class="text-right">Interest</th>
+                            <th class="text-center">Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($data as $item)
+                            <tr>
+                                <td><span class="text-muted small">{{$loop->index + 1}}</span></td>
+                                <td><a href="{{route('invoice-report', ['id' => $item['invoice_number']])}}"
+                                        class="font-weight-bold text-primary">{{$item['invoice_number']}}</a></td>
+                                <td class="text-center"><span class="badge badge-light px-2">{{$item['requests']}}</span></td>
+                                <td class="text-right">KES {{number_format($item['mi'])}}</td>
+                                <td class="text-right">KES {{number_format($item['loan_amt'])}}</td>
+                                <td class="text-right">KES {{number_format($item['interest'])}}</td>
+                                <td class="text-center">
+                                    @if ($item['status'] == 1) <span class="status-badge status-paid">Paid</span> @endif
+                                    @if ($item['status'] == 2) <span class="status-badge status-unpaid">Unpaid</span> @endif
+                                    @if ($item['status'] == 3) <span class="status-badge status-partial">Partial</span> @endif
+                                </td>
+                                <td>
+                                    <button class="btn btn-outline-primary btn-sm btn-modern px-3" data-toggle="modal"
+                                        data-target="#approval-m-{{$item['invoice_number']}}">
+                                        Update
+                                    </button>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
+    <!-- Modals -->
+    @foreach ($data as $item)
+        <div class="modal fade glass-modal" id="approval-m-{{$item['invoice_number']}}" tabindex="-1" role="dialog"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white border-0" style="border-radius: 20px 20px 0 0;">
+                        <h5 class="modal-title font-weight-bold">Collection Update: #{{$item['invoice_number']}}</h5>
+                        <button class="close text-white" type="button" data-dismiss="modal"><span>&times;</span></button>
+                    </div>
+                    <form action="{{route('payment_status')}}" method="POST">
+                        @csrf
+                        <input type="hidden" name="invoice_number" value="{{$item['invoice_number']}}">
+                        <input type="hidden" name="company_id" value="{{$item['scheme_id']}}">
+                        <input type="hidden" name="loan_requests" value="{{$item['requests']}}">
+                        <input type="hidden" name="loan_amt" value="{{$tot_loan}}">
+                        <input type="hidden" name="tot_expected_payments" value="{{$tot_expected_payments}}">
+                        <input type="hidden" name="tot_amt_paid" value="{{$tot_amt_paid}}">
+                        <input type="hidden" name="invoice_date" value="{{$date_selected}}">
 
-<script>
-document.getElementById('paymentStatus').addEventListener('change', function () {
-var selectedValue = this.value;
-var amountPaidRow = document.getElementById('amountPaidRow');
-var datePaidRow = document.getElementById('datePaidRow');
-var messageLabel = document.getElementById('messageLabel');
-var commentsRow = document.getElementById('commentsRow');
-var commentsField = document.getElementById('textarea');
+                        <div class="modal-body p-4">
+                            <div class="mb-4">
+                                <label class="small font-weight-bold text-muted text-uppercase d-block mb-1">Current
+                                    Status</label>
+                                <select name="payment_status" class="form-control form-control-modern custom-select"
+                                    id="payStatus-{{$item['invoice_number']}}"
+                                    onchange="toggleInputs('{{$item['invoice_number']}}')">
+                                    <option value="" selected disabled>Select updated status...</option>
+                                    <option value="1">Fully Settled</option>
+                                    <option value="2">Outstanding (Unpaid)</option>
+                                    <option value="3">Partially Settled</option>
+                                </select>
+                            </div>
 
-// Hide all sections by default
-amountPaidRow.style.display = 'none';
-datePaidRow.style.display = 'none';
-messageLabel.style.display = 'none';
-commentsRow.style.display = 'none';
-commentsField.removeAttribute('required'); // Remove required if hidden
+                            <div id="paymentFields-{{$item['invoice_number']}}" style="display: none;">
+                                <div class="row gx-2 mb-3">
+                                    <div class="col-6">
+                                        <label class="small font-weight-bold text-muted">Amount Received</label>
+                                        <input type="number" name="amount_paid" class="form-control form-control-modern"
+                                            placeholder="0.00">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="small font-weight-bold text-muted">Transaction Date</label>
+                                        <input type="date" name="date_paid" class="form-control form-control-modern">
+                                    </div>
+                                </div>
+                                <div class="mb-0">
+                                    <label class="small font-weight-bold text-muted">Audit Comments</label>
+                                    <textarea name="desc" class="form-control form-control-modern" rows="3"
+                                        placeholder="Reference code or deposit details..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0 p-4 pt-0">
+                            <button class="btn btn-light btn-modern flex-grow-1" type="button"
+                                data-dismiss="modal">Cancel</button>
+                            <button class="btn btn-primary btn-modern shadow flex-grow-1" type="submit">Submit Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endforeach
 
-if (selectedValue === "1") { // Paid
-amountPaidRow.style.display = 'block';
-datePaidRow.style.display = 'block';
-commentsRow.style.display = 'block';
-commentsField.setAttribute('required', 'required'); // Add required if shown
-} else if (selectedValue === "2") { // Unpaid
-// Only buttons will show, no additional action needed
-} else if (selectedValue === "3") { // Partially Paid
-messageLabel.style.display = 'block';
-}
-});
-
-</script>
-
+    <script>
+        function toggleInputs(id) {
+            const status = document.getElementById('payStatus-' + id).value;
+            const fields = document.getElementById('paymentFields-' + id);
+            fields.style.display = (status === '1' || status === '3') ? 'block' : 'none';
+        }
+    </script>
 @endsection

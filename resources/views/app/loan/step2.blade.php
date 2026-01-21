@@ -1,165 +1,264 @@
- @extends('layouts.app') 
+@extends('layouts.app')
 
-@section('content')
-    
- <div class="row mt-3">
+@section('css')
+    <style>
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            position: relative;
+        }
 
-                        <ul class="nav nav-pills navtab-bg nav-justified">
-                            <li class="nav-item">
-                                <a href="{{route('loan.index',['p'=>1])}}"  class="nav-link bg-success no-hover-style">
-                                    Info
-                                    {{-- <i class="fa fa-check-circle bg-success" style="font-size:10px"></i> --}}
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a  class="nav-link active no-hover-style">
-                                    Salary
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link bg-warning no-hover-style">
-                                    Loan 
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a  class="nav-link bg-warning no-hover-style">
-                                    Terms
-                                </a>
-                            </li>
-                        </ul>
-                        <div class="tab-content">
-                            <div class="tab-pane active" id="home1">
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e2e8f0;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
 
-                                    <div>
-                                        <div  class="modal-dialog1 modal-dialog-centered1 col-12 responsive1">
-                                                    <h5 class="modal-title" id="exampleModalLabel">My Salary Details</h5>
-                                            <div class="modal-content">
-                                                <div class="modal-body">
-                                                    <form action="{{route('loan.store')}}" method="POST">
-                                                        @csrf
-                                                        @method('POST')
-                                                        <input type="hidden" name="type" value="2">
-                                                <div class="row mb-2">
-                                                    <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Gross Salary</label>
-                                                        <input
-                                                        name="gross"
-                                                        value="{{$gross}}"
-                                                        type="number"
-                                                        class="form-control"
-                                                        placeholder="Gross Salary"
-                                                        required
-                                                        pattern="^[1-9]\d*(\.\d+)?$" 
-                                                        title="Please enter a valid positive number"
-                                                        />
-                                                    </div>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Net Salary</label>
-                                                        <input
-                                                        name="net"
-                                                        type="text"
-                                                        value="{{$net}}"
-                                                        class="form-control"
-                                                        placeholder="Net Salary"
-                                                        pattern="^[1-9]\d*(\.\d+)?$" 
-                                                        title="Please enter a valid positive number"
-                                                        min="1"
-                                                        required
-                                                      />
-                                                      
-                                                    </div>
-                                                    </div>
-                                                </div>
-                                                <div class="row">
+        .step-item {
+            position: relative;
+            z-index: 2;
+            background: #f8fafc;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #e2e8f0;
+            font-weight: 700;
+            color: #64748b;
+            transition: all 0.3s;
+        }
 
-                                                <div class="col-md-6 mb-2">
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Other Allowances</label>
-                                                        <input
-                                                        name="allowance"
-                                                        type="text"
-                                                        value="{{$allowance}}"
-                                                        class="form-control"
-                                                        placeholder="Other Allowances"
-                                                        pattern="^[0-9]\d*(\.\d+)?$" 
-                                                        title="Please enter a valid positive number"
-                                                        min="0"
-                                                        required
-                                                        />
-                                                    </div>
-                                                    </div>
+        .step-item.active {
+            background: #4e73df;
+            border-color: #4e73df;
+            color: white;
+            box-shadow: 0 0 0 4px rgba(78, 115, 223, 0.2);
+        }
 
-                                                    <div class="col-md-6 mb-3">
-                                                        <label for="field-11" class="form-label">Do you have an Outstanding Loan</label>
-                                                        <select name="outstanding_loan" class="form-control form-select" id="field-11" required>
-                                                            <option value="0" {{$outstanding_loan == 1 ? 'selected' : ''}}>No</option>
-                                                            <option value="1" {{$outstanding_loan == 1 ? 'selected' : ''}}>Yes</option>
-                                                        </select>
-                                                    </div>
-                                                        <div class="col-md-6 mb-2 loan-details" style="display: none;">
-                                                            <div class="mb-3">
-                                                                <label class="form-label">If Yes Name Financial Institution</label>
-                                                                <input name="financial_institution" value="{{$outstanding_loan_org}}" type="text" class="form-control"
-                                                                pattern="[A-Za-z\s]+"  
-                                                                title="Please enter letters only" placeholder="Name of Financial Institution" />
-                                                            </div>
-                                                        </div>
-                                                    
-                                                        <div class="col-md-6 mb-2 loan-details" style="display: none;">
-                                                            <div class="mb-3">
-                                                                <label class="form-label">Outstanding Balance</label>
-                                                                <input name="loan_bal" type="text" value="{{$outstanding_loan_balance}}" min="1"  pattern="^[1-9]\d*(\.\d+)?$" title="Please enter a valid positive number"class="form-control" placeholder="Outstanding loan balance" />
-                                                            </div>
-                                                        </div>
+        .step-item.completed {
+            background: #10b981;
+            border-color: #10b981;
+            color: white;
+        }
 
-                                                </div>
+        .step-label {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 8px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            white-space: nowrap;
+            color: #64748b;
+        }
 
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <!-- <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button> -->
-                                                   <a href="{{route('loan.index',['p'=>1])}}"><button class="btn btn-secondary" type="button" data-dismiss="modal">
-                                                        <i class="fa fa-arrow-left"></i>Back</button></a> 
-                                                        <button class="btn btn-primary" type="submit">Next  <i class="fa fa-arrow-right"></i></button>
-                                                </div>
+        .loan-form-card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            background: white;
+        }
 
-                                            </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- End NewStaff Modal-->
+        .form-section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
 
-                            </div>
-                        </div>
-    </div> 
-    <script>
-        function toggleLoanDetails() {
-            var loanDetails = document.querySelectorAll('.loan-details');
-            var selectValue = document.querySelector('.form-select').value;
-    
-            if (selectValue == '1') { // Show the divs when "Yes" is selected
-                loanDetails.forEach(function(detail) {
-                    detail.style.display = 'block';
-                });
-            } else { // Hide the divs when "NO" is selected
-                loanDetails.forEach(function(detail) {
-                    detail.style.display = 'none';
-                });
+        .form-section-title i {
+            width: 32px;
+            height: 32px;
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 0.9rem;
+        }
+
+        .form-control-modern {
+            border-radius: 10px;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            background-color: #f8fafc;
+        }
+
+        .form-control-modern:focus {
+            background-color: white;
+            border-color: #4e73df;
+            box-shadow: 0 0 0 4px rgba(78, 115, 223, 0.1);
+            outline: none;
+        }
+
+        .btn-modern {
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .loan-details {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
-    
-        // Run the function on page load to set the initial state
-        document.addEventListener('DOMContentLoaded', function() {
-            toggleLoanDetails();
-        });
-    
-        // Attach the function to the change event of the select input
-        document.querySelector('.form-select').addEventListener('change', function() {
-            toggleLoanDetails();
-        });
+    </style>
+@endsection
+
+@section('content')
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Step Progress -->
+                <div class="step-indicator px-lg-5">
+                    <div class="step-item completed"><i class="fas fa-check"></i> <span class="step-label">Personal
+                            Info</span></div>
+                    <div class="step-item active">2 <span class="step-label">Financials</span></div>
+                    <div class="step-item">3 <span class="step-label">Loan Scope</span></div>
+                    <div class="step-item">4 <span class="step-label">T & C</span></div>
+                </div>
+
+                <!-- Form Card -->
+                <div class="card loan-form-card mt-5">
+                    <div class="card-body p-4 p-lg-5">
+                        <div class="form-section-title">
+                            <i class="fas fa-wallet"></i>
+                            Financial Declaration
+                        </div>
+
+                        <form action="{{ route('loan.store') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="type" value="2">
+
+                            <div class="row">
+                                <div class="col-md-4 mb-4">
+                                    <label class="font-weight-bold text-gray-700 small">Gross Monthly Salary</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text bg-light border-right-0">KES</span>
+                                        </div>
+                                        <input name="gross" value="{{ $gross }}" type="number"
+                                            class="form-control form-control-modern border-left-0" placeholder="0.00"
+                                            required />
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-4">
+                                    <label class="font-weight-bold text-gray-700 small">Net Take-Home Pay</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text bg-light border-right-0">KES</span>
+                                        </div>
+                                        <input name="net" value="{{ $net }}" type="number"
+                                            class="form-control form-control-modern border-left-0" placeholder="0.00"
+                                            required />
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-4">
+                                    <label class="font-weight-bold text-gray-700 small">Other Allowances</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text bg-light border-right-0">KES</span>
+                                        </div>
+                                        <input name="allowance" value="{{ $allowance }}" type="number"
+                                            class="form-control form-control-modern border-left-0" placeholder="0.00"
+                                            required />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <div class="bg-light p-4 rounded-xl mb-4"
+                                style="border-radius: 15px; border: 1px dashed #cbd5e1;">
+                                <div class="row align-items-center">
+                                    <div class="col-md-7">
+                                        <h6 class="font-weight-bold mb-1">Existing Financial Obligations</h6>
+                                        <p class="text-muted small mb-0">Do you have any outstanding loans with other
+                                            financial institutions?</p>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <select name="outstanding_loan"
+                                            class="form-control form-control-modern custom-select form-select"
+                                            id="outstanding-toggle" required>
+                                            <option value="0" {{ $outstanding_loan == 0 ? 'selected' : '' }}>No, I have no
+                                                other loans</option>
+                                            <option value="1" {{ $outstanding_loan == 1 ? 'selected' : '' }}>Yes, I have
+                                                active loans</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="loan-details-container" class="loan-details" style="display: none;">
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <label class="font-weight-bold text-gray-700 small">Name of Institution</label>
+                                        <input name="financial_institution" value="{{ $outstanding_loan_org }}" type="text"
+                                            class="form-control form-control-modern" placeholder="e.g. Absa, KCB, Equity" />
+                                    </div>
+                                    <div class="col-md-6 mb-4">
+                                        <label class="font-weight-bold text-gray-700 small">Total Outstanding
+                                            Balance</label>
+                                        <input name="loan_bal" value="{{ $outstanding_loan_balance }}" type="number"
+                                            class="form-control form-control-modern"
+                                            placeholder="Current remaining balance" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-5">
+                                <a href="{{ route('loan.index', ['p' => 1]) }}" class="btn btn-light btn-modern text-muted">
+                                    <i class="fas fa-chevron-left mr-2"></i> Previous Step
+                                </a>
+                                <button class="btn btn-primary btn-modern px-5 shadow" type="submit">
+                                    Construct Loan Request <i class="fas fa-chevron-right ml-2"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@section('scripts')
+    <script>
+        function toggleLoanDetails() {
+            const container = document.getElementById('loan-details-container');
+            const selectValue = document.getElementById('outstanding-toggle').value;
+            container.style.display = selectValue == '1' ? 'block' : 'none';
+        }
+
+        document.getElementById('outstanding-toggle').addEventListener('change', toggleLoanDetails);
+        document.addEventListener('DOMContentLoaded', toggleLoanDetails);
     </script>
-    
-    
 @endsection

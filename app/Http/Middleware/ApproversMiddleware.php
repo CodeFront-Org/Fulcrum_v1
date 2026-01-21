@@ -16,9 +16,16 @@ class ApproversMiddleware
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
     public function handle(Request $request, Closure $next)
-    {        
+    {
         // Check if user is logged in and has 'admin' role
-        if (Auth::check() && (Auth::user()->role_type === 'admin' || Auth::user()->role_type === 'hro' || Auth::user()->role_type === 'finance')) {
+        if (
+            Auth::check() && (
+                Auth::user()->role_type === 'admin' ||
+                Auth::user()->role_type === 'hro' ||
+                Auth::user()->role_type === 'finance' ||
+                Auth::user()->role_type === 'approver'
+            )
+        ) {
             return $next($request);
         }
 

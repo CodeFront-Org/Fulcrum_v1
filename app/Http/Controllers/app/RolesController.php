@@ -18,29 +18,25 @@ class RolesController extends Controller
      */
     public function index()
     {
-        $label="Roles";
+        $label = "Roles";
 
-        // Get model_ids for users with role_id 1, 2, or 3
-        $modelIds = DB::table('model_has_roles')
-            ->whereIn('role_id', [1, 2, 3])
-            ->pluck('model_id');
+        // Fetch users who have roles (excluding plain users maybe? No, let's fetch all managed roles)
+        // For simplicity, let's fetch users who have an entry in company_access or have a specific role_type
 
-        foreach($modelIds as $userID){
-            $user=User::find($userID);
-            $user_id=$user->id;
-            $f_name=$user->first_name;
-            $l_name=$user->last_name;
-            $user_name=$f_name.' '.$l_name;
-            $contacts=$user->contacts;
-            $id_number=$user->id_number;
-            $role=$user->role_type;
-            //Companies access
-            $companies=Access::where('user_id',$user_id)->get();
-            $companies_access=count($companies);
+        $users = User::whereNotNull('role_type')
+            ->where('role_type', '!=', 'user')
+            ->orWhereIn('id', Access::pluck('user_id'))
+            ->get()
+            ->map(function ($user) {
+                $user->companies_count = Access::where('user_id', $user->id)->count();
+                $user->companies_list = Access::where('user_id', $user->id)
+                    ->join('companies', 'company_access.company_id', '=', 'companies.id')
+                    ->select('companies.name', 'company_access.id as access_id')
+                    ->get();
+                return $user;
+            });
 
-        }
-
-        return view('app.admin.roles',compact('label'));
+        return view('app.admin.roles', compact('label', 'users'));
     }
 
     /**
@@ -61,7 +57,39 @@ class RolesController extends Controller
      */
     public function store(Request $request)
     {
-        return $request;
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'role_type' => 'required',
+            'company' => 'required|exists:companies,name',
+        ]);
+
+        $company = Company::where('name', $request->company)->first();
+        $user = User::find($request->user_id);
+
+        // Update role_type
+        $role_map = [
+            '1' => 'user',
+            '2' => 'hro',
+            '3' => 'finance',
+            '4' => 'admin',
+            '5' => 'approver',
+        ];
+
+        $role_name = $role_map[$request->role_type] ?? 'user';
+        $user->update(['role_type' => $role_name]);
+
+        // Assign Spatie Role (Ensure it exists first)
+        \Spatie\Permission\Models\Role::firstOrCreate(['name' => $role_name]);
+        $user->syncRoles([$role_name]);
+
+        // Assign Company Access
+        Access::updateOrCreate([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+        ]);
+
+        session()->flash('message', 'Role and Company Access assigned successfully.');
+        return back();
     }
 
     /**
@@ -106,6 +134,13 @@ class RolesController extends Controller
      */
     public function destroy($id)
     {
-        //
+        try {
+            Access::where('id', $id)->delete();
+            session()->flash('message', 'Company access removed successfully.');
+            return back();
+        } catch (\Throwable $th) {
+            session()->flash('error', 'Error removing access: ' . $th->getMessage());
+            return back();
+        }
     }
 }

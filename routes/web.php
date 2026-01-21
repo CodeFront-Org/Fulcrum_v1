@@ -24,60 +24,63 @@ Route::put('/repayments/{id}', [App\Http\Controllers\app\RepaymentController::cl
 
 
 
-Route::get('/send-mail',[App\Http\Controllers\MailController::class,'sendEmail'])->name('/send-mail');
+Route::get('/send-mail', [App\Http\Controllers\MailController::class, 'sendEmail'])->name('/send-mail');
 
-Route::get('/(secure)/index.html',function(){
+Route::get('/(secure)/index.html', function () {
     return redirect('/login');
 });
 
 Route::get('/', function () {
     return view('auth.login');
-})->middleware('no-cache');;
+})->middleware('no-cache');
+;
 
 //Authentication routes
-Route::post('/app/login',[App\Http\Controllers\Auth\AuthController::class,'login'])->name('/app/login');
-Route::post('/reset', [App\Http\Controllers\Auth\ResetController::class,'send_link'])->name('reset');//to send reset link
-Route::get('/reset-password/{id}/{token}', [App\Http\Controllers\Auth\ResetController::class,'index'])->name('reset-password');//to load reset psw page
-Route::post('/reset-psw', [App\Http\Controllers\Auth\ResetController::class,'reset'])->name('reset-psw');//to send reset link
+Route::post('/app/login', [App\Http\Controllers\Auth\AuthController::class, 'login'])->name('/app/login');
+Route::post('/reset', [App\Http\Controllers\Auth\ResetController::class, 'send_link'])->name('reset');//to send reset link
+Route::get('/reset-password/{id}/{token}', [App\Http\Controllers\Auth\ResetController::class, 'index'])->name('reset-password');//to load reset psw page
+Route::post('/reset-psw', [App\Http\Controllers\Auth\ResetController::class, 'reset'])->name('reset-psw');//to send reset link
 //Forgot Password Flow
-Route::post('/forgot-psw', [App\Http\Controllers\Auth\ResetController::class,'forgot_psw'])->name('forgot_psw');//to send reset link
-Route::get('/forgot-password', function(){
+Route::post('/forgot-psw', [App\Http\Controllers\Auth\ResetController::class, 'forgot_psw'])->name('forgot_psw');//to send reset link
+Route::get('/forgot-password', function () {
     return view('auth.passwords.email');
 });//to help reset password
-Route::get('/confirmation-email',function(){
+Route::get('/confirmation-email', function () {
     return view('auth.passwords.confirm');
 });
 
 //OTP
-Route::get('/otp',[\App\Http\Controllers\Auth\OtpController::class,'otp'])->name('otp');
-Route::post('/send-otp',[\App\Http\Controllers\Auth\OtpController::class,'send_otp'])->name('send-otp'); //to be used to send otp
-Route::post('/otp/verify',[\App\Http\Controllers\Auth\OtpController::class,'verify'])->name('otp/verify'); //to verify otp sent
+Route::get('/otp', [\App\Http\Controllers\Auth\OtpController::class, 'otp'])->name('otp');
+Route::post('/send-otp', [\App\Http\Controllers\Auth\OtpController::class, 'send_otp'])->name('send-otp'); //to be used to send otp
+Route::post('/otp/verify', [\App\Http\Controllers\Auth\OtpController::class, 'verify'])->name('otp/verify'); //to verify otp sent
 
-Route::middleware(['auth','no-cache'])->group(function () {
-//*******************App routes *******************///
-Route::get('/dashboard',[\App\Http\Controllers\app\DashboardController::class,'dashboard'])->name('dashboard');
-Route::resource('users',\App\Http\Controllers\app\UserController::class)->middleware('admin');
-Route::resource('companies',\App\Http\Controllers\app\CompaniesController::class)->middleware('admin');
-Route::resource('banks',\App\Http\Controllers\app\BankController::class)->middleware('admin');
-Route::resource('roles',\App\Http\Controllers\app\RolesController::class);
-Route::resource('loan', \App\Http\Controllers\app\LoanController::class);
-Route::POST('/approve',[\App\Http\Controllers\app\ApprovalController::class,'approve'])->name('approve')->middleware('approvers');
+Route::middleware(['auth', 'no-cache'])->group(function () {
+    //*******************App routes *******************///
+    Route::get('/dashboard', [\App\Http\Controllers\app\DashboardController::class, 'dashboard'])->name('dashboard');
+    Route::resource('users', \App\Http\Controllers\app\UserController::class)->middleware('admin');
+    Route::post('/users/{id}/reset-password', [\App\Http\Controllers\app\UserController::class, 'resetPassword'])->name('users.resetPassword')->middleware('admin');
 
-
-Route::get('/view-profile',[\App\Http\Controllers\app\UserController::class,'view-profile'])->name('view_profile');
-Route::post('/update-profile',[\App\Http\Controllers\app\UserController::class,'update-profile'])->name('update_profile');
+    Route::resource('companies', \App\Http\Controllers\app\CompaniesController::class)->middleware('admin');
+    Route::resource('banks', \App\Http\Controllers\app\BankController::class)->middleware('admin');
+    Route::resource('roles', \App\Http\Controllers\app\RolesController::class)->middleware('admin');
+    Route::resource('loan', \App\Http\Controllers\app\LoanController::class);
+    Route::POST('/approve', [\App\Http\Controllers\app\ApprovalController::class, 'approve'])->name('approve')->middleware('approvers');
 
 
-//*******************Add other Admin routes *******************///
-Route::get('/admins',[\App\Http\Controllers\app\UserController::class,'getAdmins'])->name('admins');
-Route::post('/add-admin',[\App\Http\Controllers\app\UserController::class,'addAdmin'])->name('add-admin');
-Route::post('/edit-admin',[\App\Http\Controllers\app\UserController::class,'editAdmin'])->name('edit-admin');
-Route::post('/delete-admin',[\App\Http\Controllers\app\UserController::class,'deleteAdmin'])->name('delete-admin');
-
-//*******************end admin routes *******************///
+    Route::get('/view-profile', [\App\Http\Controllers\app\UserController::class, 'view-profile'])->name('view_profile');
+    Route::post('/update-profile', [\App\Http\Controllers\app\UserController::class, 'update-profile'])->name('update_profile');
 
 
-//*******************Report Admin routes *******************///
+    //*******************Add other Admin routes *******************///
+    Route::get('/admins', [\App\Http\Controllers\app\UserController::class, 'getAdmins'])->name('admins');
+    Route::post('/add-admin', [\App\Http\Controllers\app\UserController::class, 'addAdmin'])->name('add-admin');
+    Route::post('/edit-admin', [\App\Http\Controllers\app\UserController::class, 'editAdmin'])->name('edit-admin');
+    Route::post('/delete-admin', [\App\Http\Controllers\app\UserController::class, 'deleteAdmin'])->name('delete-admin');
+
+    //*******************end admin routes *******************///
+
+
+    //*******************Report Admin routes *******************///
 // Group all routes requiring 'admin' middleware
 //Route::middleware('admin')->group(function () {
 
@@ -102,24 +105,24 @@ Route::post('/delete-admin',[\App\Http\Controllers\app\UserController::class,'de
         Route::get('/repayment-schedule-pdf/{scheme_id}', 'generatePDF')->name('repayment-schedule-pdf');
         Route::get('/repayment-schedule-excel/{scheme_id}', 'generateExcel')->name('repayment-schedule-excel');
     });
-//});
+    //});
 
-// Routes not requiring 'admin' middleware
-Route::get('/payment_schedule', [\App\Http\Controllers\app\ReportsController::class, 'payment_schedule'])->name('payment_schedule');
+    // Routes not requiring 'admin' middleware
+    Route::get('/payment_schedule', [\App\Http\Controllers\app\ReportsController::class, 'payment_schedule'])->name('payment_schedule');
 
-Route::get('/search-user',[\App\Http\Controllers\app\SearchController::class,'search_user'])->name('search-user');
+    Route::get('/search-user', [\App\Http\Controllers\app\SearchController::class, 'search_user'])->name('search-user');
 
-//*******************End Report Admin routes *******************///
+    //*******************End Report Admin routes *******************///
 
-// new reports after the new changes of the partial payments for each employee
-Route::get('/loans',[\App\Http\Controllers\app\ReportsController::class,'loans'])->name('loans')->middleware('admin');//View loans 
+    // new reports after the new changes of the partial payments for each employee
+    Route::get('/loans', [\App\Http\Controllers\app\ReportsController::class, 'loans'])->name('loans')->middleware('admin');//View loans 
 
 
-// end of new report changes
+    // end of new report changes
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 });
 
-Auth::routes(); 
+Auth::routes();
 
 

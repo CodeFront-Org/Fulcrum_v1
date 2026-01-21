@@ -159,6 +159,11 @@ return [
             'path' => storage_path('logs/pesapal/test.log'),
             'level' => 'info',
         ],
+        'activity' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/activity.log'),
+            'level' => 'info',
+        ],
     ],
 
 ];
