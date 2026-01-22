@@ -177,11 +177,14 @@
                         @foreach ($data as $loan)
                             <tr>
                                 <td class="text-muted small">
-                                    {{ $loop->iteration + ($data->currentPage() - 1) * $data->perPage() }}</td>
+                                    {{ $loop->iteration + ($data->currentPage() - 1) * $data->perPage() }}
+                                </td>
                                 <td><code class="text-primary font-weight-bold">#{{ $loan['loan_id'] }}</code></td>
                                 <td>
                                     <div class="font-weight-bold text-gray-800">{{ $loan['user_name'] }}</div>
                                     <div class="text-muted small">{{ $loan['email'] }}</div>
+                                    <div class="text-muted small"><i class="fas fa-phone mr-1"></i> {{ $loan['contacts'] }}
+                                    </div>
                                 </td>
                                 <td><span class="text-muted small"><i class="far fa-calendar-alt mr-1"></i>
                                         {{ $loan['date'] }}</span></td>
@@ -265,7 +268,8 @@
                                                 @if ($isDecisionMade)
                                                     <span class="text-success"><i class="fas fa-check mr-1"></i> Approved</span>
                                                     <div class="text-muted x-small">By:
-                                                        {{ \App\Models\User::find($step['id'])?->first_name ?? 'System' }}</div>
+                                                        {{ \App\Models\User::find($step['id'])?->first_name ?? 'System' }}
+                                                    </div>
                                                 @elseif($isReturned)
                                                     <span class="text-danger"><i class="fas fa-undo mr-1"></i> Returned</span>
                                                     <div class="text-danger small mt-1 x-small">"{{ $step['comments'] }}"</div>
@@ -317,6 +321,10 @@
                                 <div class="col-md-6 mb-3">
                                     <div class="info-label">Reason for Loan</div>
                                     <div class="info-value small text-muted">{{ $item->loan_reason }}</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="info-label">Applicant Contact</div>
+                                    <div class="info-value small font-weight-bold">{{ $item->user->contacts ?? 'N/A' }}</div>
                                 </div>
                                 <div class="col-md-3 mb-3">
                                     <div class="info-label">Next of Kin</div>

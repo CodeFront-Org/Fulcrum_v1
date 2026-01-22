@@ -208,17 +208,8 @@
                         </select>
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary btn-block btn-modern shadow-sm"><i
-                                class="fas fa-search mr-2"></i>Apply Filters</button>
+                        <button type="submit" class="btn btn-primary btn-block btn-modern shadow-sm"><i class="fas fa-search mr-2"></i>Apply Filters</button>
                     </div>
-<<<<<<< HEAD
-=======
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-success" onclick="exportFile('excel')">
-                        <i class="fas fa-file-excel"></i> Export Excel
-                    </button>
->>>>>>> 00060f714322bac6c1e80bade97c8e69eb90435b
                 </div>
             </form>
         </div>

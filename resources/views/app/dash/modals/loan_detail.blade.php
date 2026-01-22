@@ -12,6 +12,10 @@
                         <div class="font-weight-bold">{{$loan->user->first_name}} {{$loan->user->last_name}}</div>
                     </div>
                     <div class="col-6 mb-3">
+                        <div class="text-xs font-weight-bold text-muted text-uppercase">Phone Number</div>
+                        <div class="font-weight-bold">{{$loan->user->contacts}}</div>
+                    </div>
+                    <div class="col-6 mb-3">
                         <div class="text-xs font-weight-bold text-muted text-uppercase">Designation</div>
                         <div class="font-weight-bold">{{$loan->company}}</div>
                     </div>

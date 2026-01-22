@@ -511,6 +511,7 @@ class LoanController extends Controller
                 'loan_id' => $d->id,
                 'user_name' => $user ? $user->first_name . " " . $user->last_name : 'N/A',
                 'email' => $user ? $user->email : 'N/A',
+                'contacts' => $user ? $user->contacts : 'N/A',
                 'date' => $date,
                 'amount' => $d->requested_loan_amount,
                 'installments' => $d->monthly_installments,

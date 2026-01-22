@@ -1,352 +1,247 @@
 @extends('layouts.app')
 
+@section('css')
+    <style>
+        .dash-card {
+            border: none;
+            border-radius: 20px;
+            transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .dash-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .card-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .icon-primary {
+            background: rgba(78, 115, 223, 0.1);
+            color: #4e73df;
+        }
+
+        .icon-success {
+            background: rgba(28, 200, 138, 0.1);
+            color: #1cc88a;
+        }
+
+        .icon-info {
+            background: rgba(54, 185, 204, 0.1);
+            color: #36b9cc;
+        }
+
+        .icon-danger {
+            background: rgba(231, 74, 59, 0.1);
+            color: #e74a3b;
+        }
+
+        .modern-table {
+            border-collapse: collapse;
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .modern-table thead th {
+            background-color: #f8fafc !important;
+            color: #64748b;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.025em;
+            padding: 16px 12px !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+        }
+
+        .modern-table tbody td {
+            padding: 14px 12px !important;
+            vertical-align: middle !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+            color: #334155;
+            font-size: 0.85rem;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #64748b;
+        }
+
+        .action-btn:hover {
+            background: #f8fafc;
+            color: #4e73df;
+            transform: translateY(-2px);
+        }
+
+        .glass-modal .modal-content {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .btn-modern {
+            border-radius: 10px;
+            font-weight: 600;
+            padding: 10px 20px;
+        }
+    </style>
+@endsection
+
 @section('content')
-@if (session()->has('message'))
-    <div id="toast" class="alert text-center alert-success alert-dismissible w-100 fade show" role="alert">
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        {{ session('message') }}
+    <div class="container-fluid py-4">
+        @if (session()->has('message'))
+            <div id="toast" class="alert alert-success border-0 shadow-sm d-flex align-items-center mb-4" role="alert"
+                style="border-radius: 12px;">
+                <i class="fas fa-check-circle mr-3 fa-lg"></i>
+                <div class="font-weight-bold">{{ session('message') }}</div>
+                <button type="button" class="close ml-auto" data-dismiss="alert">&times;</button>
+            </div>
+        @endif
+
+        @if (session()->has('error'))
+            <div id="toast" class="alert alert-danger border-0 shadow-sm d-flex align-items-center mb-4" role="alert"
+                style="border-radius: 12px;">
+                <i class="fas fa-exclamation-circle mr-3 fa-lg"></i>
+                <div class="font-weight-bold">{{ session('error') }}</div>
+                <button type="button" class="close ml-auto" data-dismiss="alert">&times;</button>
+            </div>
+        @endif
+
+        <div class="row align-items-center mb-4">
+            <div class="col">
+                <h1 class="h3 mb-0 text-gray-800 font-weight-bold">My Dashboard</h1>
+                <p class="text-muted mb-0">Welcome back. Here is an overview of your loan activities at
+                    <strong>{{ $des }}</strong>.</p>
+            </div>
+            <div class="col-auto">
+                <a href="{{ route('loan.index') }}" class="btn btn-primary btn-modern shadow-sm">
+                    <i class="fas fa-plus mr-2"></i> Apply for New Loan
+                </a>
+            </div>
+        </div>
+
+        <!-- Quick Stats Matrix -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card dash-card h-100 p-3">
+                    <div class="card-icon icon-primary"><i class="fas fa-history"></i></div>
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Requests</div>
+                    <div class="h3 mb-0 font-weight-bold text-gray-800">{{ $tot_request }}</div>
+                    <div class="mt-2 small text-muted">Applications submitted to date</div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card dash-card h-100 p-3">
+                    <div class="card-icon icon-success"><i class="fas fa-coins"></i></div>
+                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Approved Amount</div>
+                    <div class="h3 mb-0 font-weight-bold text-gray-800">KES {{ number_format($tot_amt) }}</div>
+                    <div class="mt-2 small text-muted">Total value of active loans</div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card dash-card h-100 p-3">
+                    <div class="card-icon icon-info"><i class="fas fa-file-signature"></i></div>
+                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Active Loans</div>
+                    <div class="h3 mb-0 font-weight-bold text-gray-800">{{ $approved }}</div>
+                    <div class="mt-2 small text-muted">Currently being serviced</div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card dash-card h-100 p-3">
+                    <div class="card-icon icon-danger"><i class="fas fa-undo-alt"></i></div>
+                    <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Returned</div>
+                    <div class="h3 mb-0 font-weight-bold text-gray-800">{{ $returned }}</div>
+                    <div class="mt-2 small text-muted">Awaiting your correction</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Table -->
+        <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 16px;">
+            <div class="card-header bg-white py-3 border-0">
+                <h6 class="m-0 font-weight-bold text-gray-800">My Loan Applications</h6>
+            </div>
+            <div class="table-responsive">
+                <table class="table modern-table mb-0" id="dashTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Date Applied</th>
+                            <th>Amount</th>
+                            <th>Period</th>
+                            <th>Status</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($loans as $item)
+                            <tr>
+                                <td><span class="text-muted small">#{{ $item->id }}</span></td>
+                                <td><span class="text-muted small"><i class="far fa-clock mr-1"></i>
+                                        {{ $item->created_at->format('M d, Y') }}</span></td>
+                                <td>
+                                    <div class="font-weight-bold text-primary">KES
+                                        {{ number_format($item->requested_loan_amount) }}
+                                    </div>
+                                </td>
+                                <td><span class="text-muted">{{ $item->payment_period }} Months</span></td>
+                                <td>
+                                    @if ($item->final_decision == 0)
+                                        <span class="badge badge-warning px-3 py-2" style="border-radius: 30px;">Pending</span>
+                                    @elseif($item->final_decision == 1)
+                                        <span class="badge badge-success px-3 py-2" style="border-radius: 30px;">Approved</span>
+                                    @elseif($item->final_decision == 2)
+                                        <span class="badge badge-danger px-3 py-2" style="border-radius: 30px;">Returned</span>
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="action-btn" data-toggle="modal"
+                                        data-target="#view-m-{{$item->id}}">
+                                        <i class='fas fa-eye fa-sm'></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <i class="fas fa-folder-open fa-3x text-light mb-3"></i>
+                                    <p class="text-muted">You haven't made any loan applications yet.</p>
+                                    <a href="{{ route('loan.index') }}" class="btn btn-outline-primary btn-sm btn-modern">Start
+                                        Application</a>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-@endif
 
-@if (session()->has('error'))
-    <div id="toast" class="alert text-center alert-danger alert-dismissible w-100 fade show" role="alert">
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        {{ session('error') }}
-    </div>
-@endif
-                        <!-- Content Row -->
-                        <div class="row">
-
-                            <!-- Earnings (Monthly) Card Example -->
-                            <div class="col-xl-3 col-md-6 mb-4">
-                                <div class="card border-left-primary shadow h-100 py-2">
-                                    <div class="card-body">
-                                        <div class="row no-gutters align-items-center">
-                                            <div class="col mr-2">
-                                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                    Total Requests</div>
-                                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{$tot_request}}</div>
-                                            </div>
-                                            <div class="col-auto">
-                                                <i class="fas fa-  fa-2x text-gray-300"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-    
-                            <!-- Earnings (Monthly) Card Example -->
-                            <div class="col-xl-3 col-md-6 mb-4">
-                                <div class="card border-left-success shadow h-100 py-2">
-                                    <div class="card-body">
-                                        <div class="row no-gutters align-items-center">
-                                            <div class="col mr-2">
-                                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                                    Total Loan Issued</div>
-                                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{number_format((float) $tot_amt)}}</div>
-                                            </div>
-                                            <div class="col-auto">
-                                                <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-    
-                            <!-- Earnings (Monthly) Card Example -->
-                            <div class="col-xl-3 col-md-6 mb-4">
-                                <div class="card border-left-info shadow h-100 py-2">
-                                    <div class="card-body">
-                                        <div class="row no-gutters align-items-center">
-                                            <div class="col mr-2">
-                                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Approved
-                                                </div>
-                                                <div class="row no-gutters align-items-center">
-                                                    <div class="col-auto">
-                                                        <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{$approved}}</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-auto">
-                                                <i class="fas fa-check fa-2x text-gray-300"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-    
-                            <!-- Pending Requests Card Example -->
-                            <div class="col-xl-3 col-md-6 mb-4">
-                                <div class="card border-left-warning shadow h-100 py-2">
-                                    <div class="card-body">
-                                        <div class="row no-gutters align-items-center">
-                                            <div class="col mr-2">
-                                                <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-                                                    Returned</div>
-                                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{$returned}}</div>
-                                            </div>
-                                            <div class="col-auto">
-                                                <i class="fas fa-cancel fa-2x text-gray-300"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card shadow mb-4">
-                            <div class="card-header py-3 text-center">
-                              <h6 class="m-0 font-weight-bold text-primary">
-                                My Loan Requests
-                              </h6>
-                            </div>
-                            <div class="card-body">
-                              <div class="table-responsive">
-                              <table
-                                  class="table table-bordered"
-                                  id="dataTable"
-                                  width="100%"
-                                  cellspacing="0"
-                                  style="font-size:15px;text-align:center; font-size:small"
-                                  >
-                                  <thead>
-                                      <tr>
-                                        <th>#</th>
-                                        <th class="column-title">Loan ID</th>
-                                        <th class="column-title">Date</th>
-                                        <th class="column-title">Amount</th>
-                                        <th class="column-title">Instalments</th>
-                                        <th class="column-title">Period</th>
-                                        <th class="column-title">Approval Decision</th>
-                                        <th class="column-title">View progress</th>
-                                      </tr>
-                                  </thead>
-                                  <tbody>
-                                    @foreach ($loans as $item)
-                                        <tr>
-                                        <td>{{$loop->index+1}}.</td>
-                                        <td>{{$item->id}}</td>
-                                        <td>{{$item->created_at->format('j F Y')}}</td>
-                                        <td>{{$item->requested_loan_amount}}</td>
-                                        <td>{{$item->monthly_installments}}</td>
-                                        <td>{{$item->payment_period}}</td>
-                                        @if ($item->final_decision==0)
-                                            <td class="text-warning bold">Pending</td>
-                                        @endif
-                                        @if($item->final_decision==1)
-                                            <td class="text-success bold">Approved</td>
-                                        @endif
-                                        @if ($item->final_decision==2)
-                                            <td class="text-danger bold">Returned</td>
-                                        @endif
-                                        <td>
-                                            <button type="button" style="background-color: #08228a9f;color: white" class="btn btn-sm" data-toggle="modal" data-target="#view-m-{{$item->id}}">
-                                                <i class='fas fa-eye' aria-hidden='true'></i>
-                                            </button>
-                                        </td>
-                                        </tr>
-
-
-                                        <!--  View Loan Modal-->
-                                        <div class="modal fade" id="view-m-{{$item->id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-                                        aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered" role="document">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="exampleModalLabel">Approval Progress</h5>
-                                                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                                                        <span aria-hidden="true">×</span>
-                                                    </button>
-                                                </div>
-
-                                                <div class="modal-body">
-                                                    @if ($item->final_decision==0)
-                                                        <div class="mb-1">
-                                                            <b style="font-weight: bolder; color:black">HR Decision: </b>
-                                                            @if ($item->approver1_action=='RECOMMENDED' || $item->approver1_action==1)
-                                                                <span class="text-success">Approved</span>
-                                                            @else 
-                                                            <span class="text-danger">Pending</span>
-                                                            @endif
-                                                        </div>
-                                                        <div class="mb-1">
-                                                            <b style="font-weight: bolder; color:black">Finance Decision: </b>
-                                                            @if ($item->approver2_action=='RECOMMENDED' || $item->approver1_action==1)
-                                                                <span class="text-success">Approved</span>
-                                                            @else 
-                                                            <span class="text-danger">Pending</span>
-                                                            @endif
-                                                        </div>
-                                                        <div class="mb-1">
-                                                            <b style="font-weight: bolder; color:black">Admin Decision: </b>
-                                                            @if ($item->approver3_action=='RECOMMENDED' || $item->approver1_action==1)
-                                                                <span class="text-success">Approved</span>
-                                                            @else 
-                                                            <span class="text-danger">Pending</span>
-                                                            @endif
-                                                        </div>
-                                                    @endif
-                                                    @if ($item->final_decision==1)
-                                                    <div class="mb-1">
-                                                        <b style="font-weight: bolder; color:black">HR Decision: </b>
-                                                        <span class="text-success">Approved</span>
-                                                    </div>
-                                                    <div class="mb-1">
-                                                        <b style="font-weight: bolder; color:black">Finance Decision: </b>
-                                                            <span class="text-success">Approved</span>
-                                                    </div>
-                                                    <div class="mb-1">
-                                                        <b style="font-weight: bolder; color:black">Admin Decision: </b>
-                                                            <span class="text-success">Approved</span>
-                                                    </div>
-                                                    @endif
-                                                    @if ($item->final_decision==2)
-                                                        @if ($item->approval_level==1)
-                                                            <div class="mb-1">
-                                                                <b style="font-weight: bolder; color:black">HR Decision: </b>
-                                                                <span class="text-danger">Returned</span>
-                                                            </div>
-                                                            <div class="mb-1">
-                                                                <b style="font-weight: bolder; color:black">Reason : </b>
-                                                                <span class="text-danger">{{$item->approver1_comments}}</span>
-                                                            </div>
-                                                         @endif
-                                                         @if ($item->approval_level==2)
-                                                             <div class="mb-1">
-                                                                 <b style="font-weight: bolder; color:black">Finance Decision: </b>
-                                                                 <span class="text-danger">Returned</span>
-                                                             </div>
-                                                             <div class="mb-1">
-                                                                 <b style="font-weight: bolder; color:black">Reason : </b>
-                                                                 <span class="text-danger">{{$item->approver2_comments}}</span>
-                                                             </div>
-                                                          @endif
-                                                          @if ($item->approval_level==3)
-                                                              <div class="mb-1">
-                                                                  <b style="font-weight: bolder; color:black">Admin Decision: </b>
-                                                                  <span class="text-danger">Returned</span>
-                                                              </div>
-                                                              <div class="mb-1">
-                                                                  <b style="font-weight: bolder; color:black">Reason : </b>
-                                                                  <span class="text-danger">{{$item->approver3_comments}}</span>
-                                                              </div>
-                                                           @endif
-                                                        
-                                                    @endif
-
-                                                </div>
-
-                                                <hr>
-
-                                                <div class="modal-body">
-                                                    <h5 class="modal-title text-primary mb-3" id="exampleModalLabel">View Loan Report</h5>
-                                                <form onsubmit="submitNewStaff(event)">
-                                                <div class="row text-black">
-                                                    <div class="col-md-12">
-                                                    <div class="mb-1">
-                                                        <b style="font-weight: bolder; color:black">LOAN ID: </b>
-                                                        <span>{{$item->id}}</span>
-                                                    </div>
-                                                    <div class="mb-1">
-                                                        <b style="font-weight: bolder; color:black">Designation: </b>
-                                                        <span>{{$item->company}}</span>
-                                                    </div>
-                                                    <div class="mb-1">
-                                                        <b style="font-weight: bolder; color:black">Contacts: </b>
-                                                        <span>{{$item->contacts}}</span>
-                                                    </div>
-                                                    <div class="mb-1">
-                                                        <b style="font-weight: bolder; color:black">Next of KIN: </b>
-                                                        <span>{{$item->kin}}</span>
-                                                    </div>
-                                                    <div class="mb-1">
-                                                        <b style="font-weight: bolder; color:black">KIN Contacts: </b>
-                                                        <span>{{$item->kin_contacts}}</span>
-                                                    </div>
-                                                    <div class="mb-1">
-                                                        <b style="font-weight: bolder; color:black">Gross Pay: </b>
-                                                        <span>{{number_format( (float) $item->gross_salary)}}</span>
-                                                    </div>
-                                                    <div class="mb-1">
-                                                        <b style="font-weight: bolder; color:black">Net Pay: </b>
-                                                        <span>{{number_format( (float) $item->net_salary)}}</span>
-                                                    </div>
-                                                    <div class="mb-1">
-                                                        <b style="font-weight: bolder; color:black">Allowances: </b>
-                                                        <span>{{number_format( (float) $item->other_allowances)}}</span>
-                                                    </div>
-                                                    @if ($item->outstanding_loan==1 || $item->outstanding_loan=='YES')
-                                                        <div class="mb-1">
-                                                            <b style="font-weight: bolder; color:black">Outstanding Loan Organization </b>
-                                                            <span class="text-danger">{{$item->outstanding_loan_org}}</span>
-                                                        </div>
-                                                        <div class="mb-1">
-                                                            <b style="font-weight: bolder; color:black">Outstanding Loan Amount: : </b>
-                                                            <span class="text-danger">{{number_format( (float) $item->outstanding_loan_balance)}}</span>
-                                                        </div>
-                                                    @endif
-                                                    <div class="mb-1">
-                                                        <b style="font-weight: bolder; color:black">Requested Loan Amount: </b>
-                                                        <span>{{number_format( (float) $item->requested_loan_amount)}}</span>
-                                                    </div>
-                                                    <div class="mb-1">
-                                                        <b style="font-weight: bolder; color:black">Payement Period : </b>
-                                                        <span>{{$item->payment_period}}</span>
-                                                    </div>
-                                                    <div class="mb-1">
-                                                        <b style="font-weight: bolder; color:black">Monthly Installment : </b>
-                                                        <span>{{number_format( (float) $item->monthly_installments)}}</span>
-                                                    </div>
-                                                    <div class="mb-1">
-                                                        <b style="font-weight: bolder; color:black">Loan Reason: </b>
-                                                        <span>{{$item->loan_reason}}</span>
-                                                    </div>
-                                                    @if ($item->final_decision==1 || $item->final_decision==2)
-                                                    @else
-                                                    <div class="mb-1">
-                                                        <b style="font-weight: bolder; color:black">Supporting Doc: </b>
-                                                        <a href="{{asset('uploads/supporting_docs/'.$item->supporting_doc_file)}}" class="btn btn-primary btn-sm ml-2" target="_blank">
-                                                            <i class="fas fa-download"></i> View Document
-                                                        </a>
-                                                    </div>
-                                                    @endif
-                                                    <div class="mb-1">
-                                                        <b style="font-weight: bolder; color:black">Agreed Terms and Conditions : </b>
-                                                        @if ($item->agreed_terms==1)
-                                                            <span>Yes</span>
-                                                        @else
-                                                            <span class="text-danger">NO</span>
-                                                        @endif
-                                                    </div>
-                                                    <div class="mb-1">
-                                                        <b style="font-weight: bolder; color:black">Consent to Irrevocable authority: </b>
-                                                        @if ($item->consent_to_irrevocable_authority==1)
-                                                            <span>Yes</span>
-                                                        @else
-                                                            <span class="text-danger">NO</span>
-                                                        @endif
-                                                    </div>
-
-                                                    </div>
-                                                </div>
-                                                </form>
-
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- End View Loan Modal LAST CHANGE 1234-->
-                                    @endforeach
-                                  </tbody>
-                                  </table>
-              
-                              </div>
-                            </div>
-                          </div>
-
-
-
+    <!-- Modals -->
+    @foreach ($loans as $item)
+        @include('app.dash.modals.loan_detail', ['loan' => $item])
+    @endforeach
 @endsection
