@@ -210,7 +210,15 @@
                                 <td><span class="text-muted">{{ $item->payment_period }} Months</span></td>
                                 <td>
                                     @if ($item->final_decision == 0)
-                                        <span class="badge badge-warning px-3 py-2" style="border-radius: 30px;">Pending</span>
+                                        @if ($item->approval_level == 1)
+                                            <span class="badge badge-warning px-3 py-2" style="border-radius: 30px;">Pending HRO</span>
+                                        @elseif($item->approval_level == 2)
+                                            <span class="badge badge-info px-3 py-2" style="border-radius: 30px;">Pending Finance</span>
+                                        @elseif($item->approval_level == 3)
+                                            <span class="badge badge-primary px-3 py-2" style="border-radius: 30px;">Pending Final Approval</span>
+                                        @else
+                                            <span class="badge badge-warning px-3 py-2" style="border-radius: 30px;">Pending</span>
+                                        @endif
                                     @elseif($item->final_decision == 1)
                                         <span class="badge badge-success px-3 py-2" style="border-radius: 30px;">Approved</span>
                                     @elseif($item->final_decision == 2)
