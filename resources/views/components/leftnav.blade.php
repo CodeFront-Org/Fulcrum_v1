@@ -19,7 +19,7 @@
             <span>Dashboard</span></a>
     </li>
 
-    @if(in_array(auth()->user()->role_type, ['admin', 'finance', 'hro', '2', '3', '4']))
+    @if(in_array(auth()->user()->role_type, ['admin', 'approver', 'finance', 'hro', '2', '3', '4']))
         <li class="nav-item">
             <a class="nav-link" href="{{route('users.index')}}">
                 <i class="fas fa-mail-bulk"></i>
@@ -27,7 +27,7 @@
         </li>
     @endif
 
-    @if(in_array(auth()->user()->role_type, ['admin', '4']))
+    @if(in_array(auth()->user()->role_type, ['admin', 'approver', '4']))
         {{-- <li class="nav-item">
             <a class="nav-link" href="{{route('admins')}}">
                 <i class="fas fa-user-lock"></i>
@@ -60,7 +60,7 @@
     @endif
 
     {{--Reports Menu--}}
-    @if (auth()->user()->updated_psw == 10)
+    @if (auth()->user()->updated_psw == 10 || in_array(auth()->user()->role_type, ['admin', 'approver', '4']))
         <li class="nav-item">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo1" aria-expanded="true"
                 aria-controls="collapseTwo">

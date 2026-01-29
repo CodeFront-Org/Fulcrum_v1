@@ -50,7 +50,7 @@ class UserController extends Controller
         $label = "Users";
 
         //Give admin access to all companies
-        if (Auth::check() && Auth::user()->hasRole('admin')) {
+        if (Auth::check() && (Auth::user()->hasRole('admin') || Auth::user()->hasRole('approver'))) {
             $companies = Company::orderBy('name', 'asc')->get();
             $company_access = Access::select('company_id')->pluck('company_id');
         } else {
@@ -294,7 +294,7 @@ class UserController extends Controller
     public function addAdmin(Request $request)
     {
         //Check Authentication
-        if (Auth::check() && auth()->user()->role_type === 'admin') {
+        if (Auth::check() && (auth()->user()->role_type === 'admin' || auth()->user()->role_type === 'approver')) {
             return $request;
             //Get Company ID
             // $company_id=Company::where('name',$request->company)->pluck('id')->first();
@@ -367,7 +367,7 @@ class UserController extends Controller
     public function getAdmins(Request $request)
     {
         //Check Authentication
-        if (Auth::check() && auth()->user()->role_type === 'admin') {
+        if (Auth::check() && (auth()->user()->role_type === 'admin' || auth()->user()->role_type === 'approver')) {
             $label = "Administrators";
 
             return view('app.admin.admin', compact('label'));
@@ -379,7 +379,7 @@ class UserController extends Controller
     public function editAdmin(Request $request)
     {
         //Check Authentication
-        if (Auth::check() && auth()->user()->role_type === 'admin') {
+        if (Auth::check() && (auth()->user()->role_type === 'admin' || auth()->user()->role_type === 'approver')) {
 
         } else {
             abort(401);
@@ -390,7 +390,7 @@ class UserController extends Controller
     public function deleteAdmin(Request $request)
     {
         //Check Authentication
-        if (Auth::check() && auth()->user()->role_type === 'admin') {
+        if (Auth::check() && (auth()->user()->role_type === 'admin' || auth()->user()->role_type === 'approver')) {
 
         } else {
             abort(401);

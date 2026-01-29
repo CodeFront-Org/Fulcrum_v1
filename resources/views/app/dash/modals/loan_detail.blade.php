@@ -30,14 +30,16 @@
                     </div>
                 </div>
                 <hr class="my-3">
-                <div class="mb-3">
-                    <div class="text-xs font-weight-bold text-muted text-uppercase mb-2">Internal Vetting Documents
+                @if($loan->supporting_doc_file)
+                    <div class="mb-3">
+                        <div class="text-xs font-weight-bold text-muted text-uppercase mb-2">Internal Vetting Documents
+                        </div>
+                        <a href="{{asset('uploads/supporting_docs/' . $loan->supporting_doc_file)}}" target="_blank"
+                            class="btn btn-sm btn-outline-primary btn-block">
+                            <i class="fas fa-file-download mr-1"></i> View Supporting Payslip
+                        </a>
                     </div>
-                    <a href="{{asset('uploads/supporting_docs/' . $loan->supporting_doc_file)}}" target="_blank"
-                        class="btn btn-sm btn-outline-primary btn-block">
-                        <i class="fas fa-file-download mr-1"></i> View Supporting Payslip
-                    </a>
-                </div>
+                @endif
                 <div class="bg-light p-3 rounded small">
                     <div class="font-weight-bold mb-1">Purpose of Loan:</div>
                     {{$loan->loan_reason}}

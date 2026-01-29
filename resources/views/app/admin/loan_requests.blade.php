@@ -170,6 +170,7 @@
                             <th>Period</th>
                             <th>Level</th>
                             <th>Status</th>
+                            <th class="text-center">Docs</th>
                             <th class="text-center">View</th>
                         </tr>
                     </thead>
@@ -208,6 +209,20 @@
                                         <span class="status-pill pill-pending"><i class="fas fa-clock mr-1"></i> Pending</span>
                                     @elseif($loan['status'] == 2)
                                         <span class="status-pill pill-returned"><i class="fas fa-undo-alt mr-1"></i> Returned</span>
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    @if($loan['file'])
+                                        <a href="{{ asset('uploads/supporting_docs/' . $loan['file']) }}" target="_blank"
+                                            class="action-btn" title="View Document">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </a>
+                                    @else
+                                        <button type="button" class="action-btn text-danger"
+                                            onclick="alert('No supporting document was uploaded for this loan request.')"
+                                            title="No Document">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </button>
                                     @endif
                                 </td>
                                 <td class="text-center">
@@ -341,10 +356,17 @@
                                             <span class="font-weight-bold text-gray-700">Supporting Documentation</span>
                                             <p class="mb-0 text-muted x-small">Click to verify attachment</p>
                                         </div>
-                                        <a href="{{ asset('uploads/supporting_docs/' . $item->supporting_doc_file) }}"
-                                            class="btn btn-outline-primary btn-sm px-4" target="_blank">
-                                            <i class="fas fa-paperclip mr-2"></i> View Attachment
-                                        </a>
+                                        @if($item->supporting_doc_file)
+                                            <a href="{{ asset('uploads/supporting_docs/' . $item->supporting_doc_file) }}"
+                                                class="btn btn-outline-primary btn-sm px-4" target="_blank">
+                                                <i class="fas fa-paperclip mr-2"></i> View Attachment
+                                            </a>
+                                        @else
+                                            <button class="btn btn-outline-danger btn-sm px-4"
+                                                onclick="alert('No supporting document was uploaded for this loan request.')">
+                                                <i class="fas fa-paperclip mr-2"></i> No Attachment
+                                            </button>
+                                        @endif
                                     </div>
                                 </div>
                             </div>

@@ -11,13 +11,15 @@
                 <input type="hidden" name="loan_id" value="{{$loan->id}}">
                 <input type="hidden" name="type" value="1">
                 <div class="modal-body p-4">
-                    <div class="mb-4">
-                        <label class="text-xs font-weight-bold text-muted text-uppercase mb-1">Transaction Reference
-                            Code</label>
-                        <input name="trx" type="text" class="form-control form-control-modern"
-                            placeholder="e.g. MPESA-ABC123XYZ" required>
-                        <small class="text-muted">Enter the disbursement reference from the financial provider.</small>
-                    </div>
+                    @if(auth()->user()->role_type == 'admin' || auth()->user()->role_type == 'approver')
+                        <div class="mb-4">
+                            <label class="text-xs font-weight-bold text-muted text-uppercase mb-1">Transaction Reference
+                                Code</label>
+                            <input name="trx" type="text" class="form-control form-control-modern"
+                                placeholder="e.g. MPESA-ABC123XYZ" required>
+                            <small class="text-muted">Enter the disbursement reference from the financial provider.</small>
+                        </div>
+                    @endif
                     <div>
                         <label class="text-xs font-weight-bold text-muted text-uppercase mb-1">Internal Comments</label>
                         <textarea name="desc" class="form-control form-control-modern" rows="3"

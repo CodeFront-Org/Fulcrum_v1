@@ -19,8 +19,7 @@ use Laravel\Socialite\Facades\Socialite;
 
 use App\Http\Controllers\RepaymentController;
 
-Route::get('/repayments', [App\Http\Controllers\app\RepaymentController::class, 'index'])->name('repayments.index');
-Route::put('/repayments/{id}', [App\Http\Controllers\app\RepaymentController::class, 'update'])->name('repayments.update');
+
 
 
 
@@ -105,6 +104,9 @@ Route::middleware(['auth', 'no-cache'])->group(function () {
         Route::get('/repayment-schedule-pdf/{scheme_id}', 'generatePDF')->name('repayment-schedule-pdf');
         Route::get('/repayment-schedule-excel/{scheme_id}', 'generateExcel')->name('repayment-schedule-excel');
     });
+    // RepaymentController routes
+    Route::get('/repayments', [\App\Http\Controllers\app\RepaymentController::class, 'index'])->name('repayments.index')->middleware('admin');
+    Route::put('/repayments/{id}', [\App\Http\Controllers\app\RepaymentController::class, 'update'])->name('repayments.update')->middleware('admin');
     //});
 
     // Routes not requiring 'admin' middleware
