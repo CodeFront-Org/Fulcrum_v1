@@ -298,7 +298,7 @@ class LoanController extends Controller
                     if (Loan::where('user_id', $id)->where('file_name', $file_name)->latest()->exists()) {  //Check if doc exists
                         $get_file = Loan::where('user_id', $id)->latest()->value('supporting_doc_file'); //Get file_name or path of file in db column defined as path so that you can define it in url below
                         $loan_id = Loan::where('user_id', $id)->pluck('id')->last();
-                        $url = public_path('uploads/supporting_docs/' . $get_file);
+                        $url = public_path('uploads' . DIRECTORY_SEPARATOR . 'supporting_docs' . DIRECTORY_SEPARATOR . $get_file);
                         if (file_exists($url)) {
                             @unlink($url); //Removes the file
                         }
@@ -306,7 +306,12 @@ class LoanController extends Controller
                     }
                     //Add New File image
                     $fileName = time() . "_" . $id . "_" . $file->getClientOriginalName();
-                    $file->move(public_path('uploads/supporting_docs/'), $fileName);
+
+                    $destinationPath = public_path('uploads' . DIRECTORY_SEPARATOR . 'supporting_docs');
+                    if (!file_exists($destinationPath)) {
+                        mkdir($destinationPath, 0755, true);
+                    }
+                    $file->move($destinationPath, $fileName);
 
                     Loan::where('id', $loan_id)->update(['supporting_doc_file' => $fileName, 'file_name' => $file_name]);
                 }
