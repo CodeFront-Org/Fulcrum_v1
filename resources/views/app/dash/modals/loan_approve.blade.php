@@ -20,6 +20,23 @@
                             <small class="text-muted">Enter the disbursement reference from the financial provider.</small>
                         </div>
                     @endif
+
+                    <div class="mb-3">
+                        <label class="text-xs font-weight-bold text-muted text-uppercase mb-1">Supporting
+                            Document</label>
+                        @if($loan->supporting_doc_file)
+                            <a href="{{asset('uploads/supporting_docs/' . $loan->supporting_doc_file)}}" target="_blank"
+                                class="btn btn-sm btn-outline-primary btn-block">
+                                <i class="fas fa-file-alt mr-2"></i> View Attachment
+                            </a>
+                        @else
+                            <button type="button" class="btn btn-sm btn-outline-secondary btn-block"
+                                onclick="alert('No attachment was found for this application.')">
+                                <i class="fas fa-file-alt mr-2"></i> View Attachment
+                            </button>
+                        @endif
+                    </div>
+
                     <div>
                         <label class="text-xs font-weight-bold text-muted text-uppercase mb-1">Internal Comments</label>
                         <textarea name="desc" class="form-control form-control-modern" rows="3"

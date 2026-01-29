@@ -15,6 +15,23 @@
                         <i class="fas fa-info-circle mr-2"></i>
                         Returning a request allows the applicant to correct details and resubmit.
                     </div>
+
+                    <div class="mb-3">
+                        <label class="text-xs font-weight-bold text-muted text-uppercase mb-1">Supporting
+                            Document</label>
+                        @if($loan->supporting_doc_file)
+                            <a href="{{asset('uploads/supporting_docs/' . $loan->supporting_doc_file)}}" target="_blank"
+                                class="btn btn-sm btn-outline-primary btn-block">
+                                <i class="fas fa-file-alt mr-2"></i> View Attachment
+                            </a>
+                        @else
+                            <button type="button" class="btn btn-sm btn-outline-secondary btn-block"
+                                onclick="alert('No attachment was found for this application.')">
+                                <i class="fas fa-file-alt mr-2"></i> View Attachment
+                            </button>
+                        @endif
+                    </div>
+
                     <div>
                         <label class="text-xs font-weight-bold text-muted text-uppercase mb-1">Reason for Return</label>
                         <textarea name="desc" class="form-control form-control-modern" rows="4"
