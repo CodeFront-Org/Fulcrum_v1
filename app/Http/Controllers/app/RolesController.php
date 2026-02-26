@@ -60,10 +60,10 @@ class RolesController extends Controller
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'role_type' => 'required',
-            'company' => 'required|exists:companies,name',
+            'companies' => 'required|array',
+            'companies.*' => 'required|exists:companies,name',
         ]);
 
-        $company = Company::where('name', $request->company)->first();
         $user = User::find($request->user_id);
 
         // Update role_type
@@ -82,11 +82,16 @@ class RolesController extends Controller
         \Spatie\Permission\Models\Role::firstOrCreate(['name' => $role_name]);
         $user->syncRoles([$role_name]);
 
-        // Assign Company Access
-        Access::updateOrCreate([
-            'user_id' => $user->id,
-            'company_id' => $company->id,
-        ]);
+        // Assign Company Access for each selected company
+        foreach ($request->companies as $company_name) {
+            $company = Company::where('name', $company_name)->first();
+            if ($company) {
+                Access::updateOrCreate([
+                    'user_id' => $user->id,
+                    'company_id' => $company->id,
+                ]);
+            }
+        }
 
         session()->flash('message', 'Role and Company Access assigned successfully.');
         return back();

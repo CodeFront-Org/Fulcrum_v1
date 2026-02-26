@@ -39,6 +39,95 @@
         .action-btn:hover { background: #f8fafc; color: #4e73df; transform: translateY(-2px); }
         .glass-modal .modal-content { border: none; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
         .form-control-modern { border-radius: 10px; padding: 12px 16px; border: 1px solid #e2e8f0; font-size: 0.9rem; transition: all 0.2s; }
+        
+        .select2-container--default .select2-selection--multiple {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 5px 10px;
+            min-height: 45px;
+        }
+        .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border-color: #4e73df;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: #4e73df;
+            border: none;
+            color: white;
+            border-radius: 6px;
+            padding: 2px 10px;
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            color: white;
+            margin-right: 5px;
+            border-right: 1px solid rgba(255,255,255,0.2);
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        /* Checkbox list styles */
+        .company-list-container {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px;
+            background: #f8fafc;
+        }
+        .company-item {
+            transition: all 0.2s;
+            border-radius: 8px;
+            padding: 10px 15px;
+            cursor: pointer;
+            margin-bottom: 6px;
+            border: 1px solid transparent;
+            display: block;
+            width: 100%;
+        }
+        .company-item:hover {
+            background: #edf2f7;
+            border-color: #cbd5e1;
+        }
+        .company-item.selected {
+            background: #e0e7ff;
+            border-color: #c7d2fe;
+            border-left: 4px solid #4e73df;
+        }
+        .custom-control.custom-checkbox {
+            padding-left: 2rem;
+            min-height: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+        .custom-control-label {
+            cursor: pointer;
+            width: 100%;
+            padding-top: 2px;
+            line-height: 1.4;
+            user-select: none;
+            word-break: break-word; /* Prevents long names from breaking layout */
+        }
+        .custom-control-input {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+        /* Custom indicator positioning for vertical alignment with wrapped text */
+        .custom-control-label::before, 
+        .custom-control-label::after {
+            top: 0.15rem !important;
+            left: -2rem !important;
+            width: 1.25rem !important;
+            height: 1.25rem !important;
+        }
+        
+        .search-container { position: relative; margin-bottom: 15px; }
+        .search-container i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #4e73df; z-index: 5; }
+        .search-input { padding-left: 40px !important; border-radius: 12px !important; }
     </style>
 @endsection
 
@@ -208,13 +297,33 @@
                         </div>
 
                         <div class="form-group mb-4">
-                            <label class="font-weight-bold text-gray-700 small">2. Assign to Entity</label>
-                            <select name="company" class="form-control form-control-modern custom-select" required>
-                                <option value="" selected disabled>Select Entity/Company...</option>
+                            <label class="font-weight-bold text-gray-700 small">2. Assign to Entities (Select Multiple)</label>
+                            
+                            <div class="search-container">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="companySearch" class="form-control form-control-modern search-input" placeholder="Search companies...">
+                            </div>
+
+                            <div class="company-list-container" id="companyList">
+                                <div class="custom-control custom-checkbox mb-2 ml-2">
+                                    <input type="checkbox" class="custom-control-input" id="checkAllCompanies">
+                                    <label class="custom-control-label font-weight-bold text-primary" for="checkAllCompanies">Select All Companies</label>
+                                </div>
+                                <hr class="my-2">
                                 @foreach ($companies as $c)
-                                    <option value="{{ $c->name }}">{{ $c->name }}</option>
+                                    <div class="company-item mb-1">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" name="companies[]" value="{{ $c->name }}" 
+                                                   class="custom-control-input company-checkbox" 
+                                                   id="comp-{{ $c->id }}">
+                                            <label class="custom-control-label font-weight-medium text-gray-800" for="comp-{{ $c->id }}">
+                                                {{ $c->name }}
+                                            </label>
+                                        </div>
+                                    </div>
                                 @endforeach
-                            </select>
+                            </div>
+                            <div id="selectedCount" class="text-xs text-muted mt-2 font-weight-bold">0 entities selected</div>
                         </div>
 
                         <div class="form-group mb-4">
@@ -249,6 +358,43 @@
                 });
                 if(option.length) {
                     $('#user-id').val(option.data('id'));
+                }
+            });
+
+            // Company Search Logic
+            $('#companySearch').on('keyup', function() {
+                var value = $(this).val().toLowerCase();
+                $("#companyList .company-item").filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+
+            // Select All Companies
+            $('#checkAllCompanies').on('change', function() {
+                $('.company-checkbox').prop('checked', $(this).prop('checked'));
+                $('.company-checkbox').trigger('change');
+            });
+
+            // Update Selected Count & Highlight
+            $('.company-checkbox').on('change', function() {
+                var checkedCount = $('.company-checkbox:checked').length;
+                $('#selectedCount').text(checkedCount + ' entities selected');
+                
+                if ($(this).prop('checked')) {
+                    $(this).closest('.company-item').addClass('selected');
+                } else {
+                    $(this).closest('.company-item').removeClass('selected');
+                }
+
+                // Update "Select All" state
+                $('#checkAllCompanies').prop('checked', checkedCount === $('.company-checkbox').length);
+            });
+
+            // Make the entire company item clickable
+            $(document).on('click', '.company-item', function(e) {
+                if (!$(e.target).is('input')) {
+                    var cb = $(this).find('.company-checkbox');
+                    cb.prop('checked', !cb.prop('checked')).trigger('change');
                 }
             });
 
