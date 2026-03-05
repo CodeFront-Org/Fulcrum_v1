@@ -3,67 +3,82 @@
 <head>
     <title>Repayment Schedule - {{ $company->name }}</title>
     <style>
-        body { font-family: Arial, sans-serif; font-size: 12px; }
-        .header { text-align: center; margin-bottom: 20px; font-size: 16px; font-weight: bold; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; font-weight: bold; }
-        .amount { text-align: right; }
+        body { font-family: 'Times New Roman', Times, serif; font-size: 10pt; line-height: 1.4; color: black; margin: 0; padding: 0.5in; }
+        .company-name { font-weight: bold; font-family: Arial, sans-serif; font-size: 12pt; margin-bottom: 20px; text-transform: uppercase; }
+        .report-title { font-weight: bold; font-size: 11pt; text-decoration: underline; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        th, td { border: 1px solid black; padding: 4px 6px; font-size: 9pt; vertical-align: middle; }
+        th { font-weight: bold; text-align: left; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .subtotal-row td { font-weight: bold; }
+        .note { margin-top: 15px; font-size: 9.5pt; font-style: normal; }
+        .payment-account { margin-top: 20px; font-size: 9.5pt; }
+        .payment-account strong { text-decoration: underline; }
+        .signature-section { margin-top: 30px; }
+        .signature-line { margin-top: 15px; }
     </style>
 </head>
 <body>
-    <div class="header">{{ $company->name }} - Repayment Schedule</div>
+    <div class="company-name">{{ $company->name }}</div>
+    
+    <div class="report-title">Personal staff loans for the month ending {{ $month_ending }}</div>
     
     <table>
         <thead>
             <tr>
-                <th>ID</th>
+                <th style="width: 30px;">No.</th>
                 <th>Customer Name</th>
-                <th>Loan Principal</th>
-                <th>Disbursed Date</th>
-                <th>Interest Rate</th>
-                <th>Installments</th>
-                <th>Repayment Amount</th>
+                <th>Company</th>
+                <th class="text-right">Loan Principal Amount (Kshs.)</th>
+                <th class="text-center">Date Loan Disbursed</th>
+                <th class="text-center">Loan Tenor (in months)</th>
+                <th class="text-center">Interest Rate</th>
+                <th class="text-center">Instalments Number</th>
+                <th class="text-right">Loan Repayment Amount (Kshs.)<br>{{ $report_date }}</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($loans as $loan)
-            <tr>
-                <td>{{ $loan->id}}</td>
-                <td>{{ $loan->user->first_name }} {{ $loan->user->last_name }}</td>
-                <td class="amount">{{ number_format($loan->requested_loan_amount, 2) }}</td>
-                <td>{{ $loan->created_at->format('Y-m-d') }}</td>
-              
-
-                {{--add the company model --}}
-          
-                    @php
-                        $company = \App\Models\Company::find($loan->company_id);
-
-                    // Store month fields that are not null
-                    $periods = [
-                        0,
-                        $company->month1,
-                        $company->month2,
-                        $company->month3,
-                        $company->month4,
-                        $company->month5,
-                        $company->month6,
-                        $company->month7,
-                        $company->month8,
-                        $company->month9,
-                        $company->month10,
-                        $company->month11,
-                        $company->month12
-                       ];
+            @php $total_principal = 0; $total_repayment = 0; @endphp
+            @foreach($loans as $index => $loan)
+                @php 
+                    $total_principal += $loan->requested_loan_amount; 
+                    $total_repayment += $loan->installment_amount;
                 @endphp
-               
-                 <td>{{ $periods[$loan->payment_period]*100  ?? 'N/A' }}%</td>
-                <td>{{ $loan->current_payment_period }}</td>
-                <td class="amount">{{ number_format($loan->amount_payable, 2) }}</td>
-            </tr>
+                <tr>
+                    <td class="text-center">{{ $index + 1 }}</td>
+                    <td>{{ $loan->user->first_name }} {{ $loan->user->last_name }}</td>
+                    <td>{{ $company->name }}</td>
+                    <td class="text-right">{{ number_format($loan->requested_loan_amount) }}</td>
+                    <td class="text-center">{{ $loan->disbursed_date_formatted }}</td>
+                    <td class="text-center">{{ $loan->payment_period }}</td>
+                    <td class="text-center">{{ $loan->interest_rate }}%</td>
+                    <td class="text-center">{{ $loan->installment_number }}</td>
+                    <td class="text-right">{{ number_format($loan->installment_amount) }}</td>
+                </tr>
             @endforeach
+            <tr class="subtotal-row">
+                <td colspan="3">Sub-Total Amount</td>
+                <td class="text-right">{{ number_format($total_principal) }}</td>
+                <td colspan="4"></td>
+                <td class="text-right">{{ number_format($total_repayment) }}</td>
+            </tr>
         </tbody>
     </table>
+
+
+    <div class="payment-account">
+        <strong>Payment account</strong><br>
+        Account Name: Fulcrum Link Ltd<br>
+        Account No. <strong>4904000017</strong><br>
+        Bank: NCBA<br>
+        Branch: ABC
+    </div>
+
+    <div class="signature-section">
+        <div class="signature-line">Josephine Nderitu (Mrs.) -----------------------------------------------------------------</div>
+        <div class="signature-line">Date: -------------------------------------------------------------</div>
+        <div class="signature-line" style="margin-top: 25px;">General Manager - Fulcrum Link Ltd</div>
+    </div>
 </body>
 </html>

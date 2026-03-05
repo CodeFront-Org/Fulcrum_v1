@@ -164,7 +164,8 @@
                             <option value="">All Companies</option>
                             @foreach($companies as $company)
                                 <option value="{{ $company->id }}" {{ request('company_id') == $company->id ? 'selected' : '' }}>
-                                    {{ $company->name }}</option>
+                                    {{ $company->name }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -174,7 +175,8 @@
                             <option value="">All Users</option>
                             @foreach($users as $user)
                                 <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>
-                                    {{ $user->first_name }} {{ $user->last_name }}</option>
+                                    {{ $user->first_name }} {{ $user->last_name }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -208,7 +210,8 @@
                         </select>
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary btn-block btn-modern shadow-sm"><i class="fas fa-search mr-2"></i>Apply Filters</button>
+                        <button type="submit" class="btn btn-primary btn-block btn-modern shadow-sm"><i
+                                class="fas fa-search mr-2"></i>Apply Filters</button>
                     </div>
                 </div>
             </form>
@@ -248,7 +251,8 @@
                                     <td>
                                         <div class="font-weight-bold text-gray-800">
                                             {{ $repayment->user->first_name ?? 'Unknown' }}
-                                            {{ $repayment->user->last_name ?? '' }}</div>
+                                            {{ $repayment->user->last_name ?? '' }}
+                                        </div>
                                         <div class="text-muted extra-small">Loan ID: #{{ $repayment->loan_id }}</div>
                                     </td>
                                     <td>
@@ -261,7 +265,8 @@
                                         </select>
                                     </td>
                                     <td class="text-right font-weight-bold text-gray-900">KES
-                                        {{ number_format($repayment->installments) }}</td>
+                                        {{ number_format($repayment->installments) }}
+                                    </td>
                                     <td class="text-center">
                                         <select name="status"
                                             class="form-control form-control-sm border-0 font-weight-bold {{ $pillClass }} small"
@@ -317,12 +322,23 @@
                         </div>
                         <div class="row gx-2">
                             <div class="col-6">
-                                <label class="small font-weight-bold text-muted">Start Cycle</label>
-                                <input type="date" name="from_date" class="form-control form-control-modern">
+                                <label class="small font-weight-bold text-muted">Month</label>
+                                <select name="month" class="form-control form-control-modern" required>
+                                    @foreach($months as $month)
+                                        <option value="{{ $month }}" {{ now()->format('F') == $month ? 'selected' : '' }}>
+                                            {{ $month }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
                             <div class="col-6">
-                                <label class="small font-weight-bold text-muted">End Cycle</label>
-                                <input type="date" name="to_date" class="form-control form-control-modern">
+                                <label class="small font-weight-bold text-muted">Year</label>
+                                <select name="year" class="form-control form-control-modern" required>
+                                    @foreach($years as $year)
+                                        <option value="{{ $year }}" {{ now()->year == $year ? 'selected' : '' }}>{{ $year }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                     </form>
@@ -346,10 +362,10 @@
             const sid = form.scheme_id.value;
             if (!sid) return alert('Please select a target entity.');
 
-            const from = form.from_date.value;
-            const to = form.to_date.value;
+            const month = form.month.value;
+            const year = form.year.value;
             let url = type === 'pdf' ? `/repayment-schedule-pdf/${sid}` : `/repayment-schedule-excel/${sid}`;
-            if (from || to) url += `?from_date=${from}&to_date=${to}`;
+            url += `?month=${month}&year=${year}`;
 
             window.open(url, '_blank');
             $('#exportModal').modal('hide');
