@@ -73,13 +73,13 @@ class RepaymentScheduleController extends Controller
 
             $repaymentInPeriod = $loan->repayments->first();
             $loan->installment_amount = $repaymentInPeriod ? $repaymentInPeriod->installments : $loan->monthly_installments;
-            $loan->disbursed_date_formatted = $loan->approver3_date ? \Carbon\Carbon::parse($loan->approver3_date)->format('n/j/Y') : '';
+            $loan->disbursed_date_formatted = $loan->approver3_date ? \Carbon\Carbon::parse($loan->approver3_date)->format('d/m/Y') : '';
         }
 
         return [
             'loans' => $loansFiltered,
-            'month_ending' => $toDate->format('jS F Y'),
-            'report_date' => $toDate->format('d-m-Y')
+            'month_ending' => $toDate->format('d/m/Y'),
+            'report_date' => $toDate->format('d/m/Y')
         ];
     }
 

@@ -170,7 +170,7 @@
     <div class="report-info">
         <div class="report-title">Staff Loan Repayment Portfolio</div>
         <div class="report-date-meta">
-            Period Ending: <strong>{{ $month_ending }}</strong> | Generated: {{ date('d M Y') }}
+            Period Ending: <strong>{{ $month_ending }}</strong> | Generated: {{ date('d/m/Y') }}
         </div>
     </div>
     
