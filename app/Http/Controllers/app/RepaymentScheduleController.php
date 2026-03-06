@@ -23,7 +23,7 @@ class RepaymentScheduleController extends Controller
         $payment_details = $request->payment_details;
 
         $pdf = Pdf::loadView('app.reports.repayment_schedule_pdf', compact('company', 'loans', 'month_ending', 'report_date', 'payment_details'));
-        $pdf->setPaper('A4', 'landscape');
+        $pdf->setPaper('A4', 'portrait');
         return $pdf->download('repayment_schedule_' . $company->name . '.pdf');
     }
 

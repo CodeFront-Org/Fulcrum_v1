@@ -177,15 +177,14 @@
     <table>
         <thead>
             <tr>
-                <th style="width: 4%;">#</th>
-                <th style="width: 22%;">Customer Name</th>
-                <th style="width: 12%;">Scheme</th>
-                <th class="text-right" style="width: 14%;">Principal (KSH)</th>
-                <th class="text-center" style="width: 10%;">Disbursed</th>
-                <th class="text-center" style="width: 8%;">Tenor</th>
-                <th class="text-center" style="width: 7%;">Rate</th>
-                <th class="text-center" style="width: 8%;">Inst. #</th>
-                <th class="text-right" style="width: 15%;">Payable (KSH)</th>
+                <th style="width: 5%;">#</th>
+                <th style="width: 25%;">Customer Name</th>
+                <th class="text-right" style="width: 15%;">Principal (KSH)</th>
+                <th class="text-center" style="width: 12%;">Disbursed</th>
+                <th class="text-center" style="width: 9%;">Tenor</th>
+                <th class="text-center" style="width: 8%;">Rate</th>
+                <th class="text-center" style="width: 9%;">Inst. #</th>
+                <th class="text-right" style="width: 17%;">Payable (KSH)</th>
             </tr>
         </thead>
         <tbody>
@@ -200,7 +199,6 @@
                     <td style="font-weight: bold;">
                         {{ $loan->user->first_name . ' ' . $loan->user->last_name }}
                     </td>
-                    <td>{{ $company->name }}</td>
                     <td class="text-right">{{ number_format($loan->requested_loan_amount) }}</td>
                     <td class="text-center">{{ $loan->disbursed_date_formatted }}</td>
                     <td class="text-center">{{ $loan->payment_period }} Mo</td>
@@ -210,7 +208,7 @@
                 </tr>
             @endforeach
             <tr class="subtotal-row">
-                <td colspan="3" class="text-right">TOTAL PORTFOLIO AMOUNT</td>
+                <td colspan="2" class="text-right">TOTAL PORTFOLIO AMOUNT</td>
                 <td class="text-right">{{ number_format($total_principal) }}</td>
                 <td colspan="4"></td>
                 <td class="text-right">{{ number_format($total_repayment) }}</td>
