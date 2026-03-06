@@ -20,8 +20,9 @@ class RepaymentScheduleController extends Controller
         $loans = $data['loans'];
         $month_ending = $data['month_ending'];
         $report_date = $data['report_date'];
+        $payment_details = $request->payment_details;
 
-        $pdf = Pdf::loadView('app.reports.repayment_schedule_pdf', compact('company', 'loans', 'month_ending', 'report_date'));
+        $pdf = Pdf::loadView('app.reports.repayment_schedule_pdf', compact('company', 'loans', 'month_ending', 'report_date', 'payment_details'));
         $pdf->setPaper('A4', 'landscape');
         return $pdf->download('repayment_schedule_' . $company->name . '.pdf');
     }
@@ -162,18 +163,19 @@ class RepaymentScheduleController extends Controller
 
         // Payment details
         $row += 2;
-        $sheet->setCellValue('A' . $row, 'Payment account');
-        $sheet->getStyle('A' . $row)->getFont()->setBold(true)->setUnderline(true);
-        $row++;
-        $sheet->setCellValue('A' . $row, 'Account Name: Fulcrum Link Ltd');
-        $row++;
-        $sheet->setCellValue('A' . $row, 'Account No. 4904000017');
-        $row++;
-        $sheet->setCellValue('A' . $row, 'Bank: NCBA');
-        $row++;
-        $sheet->setCellValue('A' . $row, 'Branch: ABC');
+        $payment_details = $request->payment_details;
+        if ($payment_details) {
+            $details_lines = explode("\n", $payment_details);
+            foreach ($details_lines as $line) {
+                $sheet->setCellValue('A' . $row, trim($line));
+                if (str_contains(strtolower($line), 'payment account')) {
+                    $sheet->getStyle('A' . $row)->getFont()->setBold(true)->setUnderline(true);
+                }
+                $row++;
+            }
+        }
 
-        $row += 2;
+        $row += 1;
         $sheet->setCellValue('A' . $row, 'Josephine Nderitu (Mrs.) ---------------------------------------------');
         $row += 2;
         $sheet->setCellValue('A' . $row, 'Date: -----------------------------------------');

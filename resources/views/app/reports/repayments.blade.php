@@ -341,14 +341,20 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="mt-4">
+                            <label class="small font-weight-bold text-muted">Payment Details (Print Layout)</label>
+                            <textarea name="payment_details" id="payment_details" class="form-control form-control-modern"
+                                rows="4" placeholder="Enter bank name, account no, etc..."></textarea>
+                            <small class="text-muted">These details will be saved for your next session.</small>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer border-0 p-4 pt-0 d-flex gap-2">
-                    <button type="button" class="btn btn-danger btn-modern flex-grow-1" onclick="exportFile('pdf')">
+                    <button type="button" class="btn btn-danger btn-modern flex-grow-1" onclick="submitExport('pdf')">
                         <i class="fas fa-file-pdf mr-1"></i> PDF Report
                     </button>
                     <button type="button" class="btn btn-success btn-modern flex-grow-1 shadow"
-                        onclick="exportFile('excel')">
+                        onclick="submitExport('excel')">
                         <i class="fas fa-file-excel mr-1"></i> Excel Data
                     </button>
                 </div>
@@ -357,15 +363,35 @@
     </div>
 
     <script>
-        function exportFile(type) {
+        // Default static data if none in local storage
+        const defaultPaymentDetails = `Payment account
+    Account Name: Fulcrum Link Ltd
+    Account No. 4904000017
+    Bank: NCBA
+    Branch: ABC`;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const savedDetails = localStorage.getItem('repayment_export_details');
+            const textarea = document.getElementById('payment_details');
+            textarea.value = savedDetails || defaultPaymentDetails;
+
+            // Auto-save on change
+            textarea.addEventListener('input', function () {
+                localStorage.setItem('repayment_export_details', this.value);
+            });
+        });
+
+        function submitExport(type) {
             const form = document.getElementById('exportForm');
             const sid = form.scheme_id.value;
             if (!sid) return alert('Please select a target entity.');
 
             const month = form.month.value;
             const year = form.year.value;
+            const paymentDetails = encodeURIComponent(form.payment_details.value);
+
             let url = type === 'pdf' ? `/repayment-schedule-pdf/${sid}` : `/repayment-schedule-excel/${sid}`;
-            url += `?month=${month}&year=${year}`;
+            url += `?month=${month}&year=${year}&payment_details=${paymentDetails}`;
 
             window.open(url, '_blank');
             $('#exportModal').modal('hide');
