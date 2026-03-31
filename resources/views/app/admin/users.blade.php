@@ -260,13 +260,31 @@
 
         <!-- Main Content -->
         <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 16px;">
-            <div class="card-header bg-white py-3 border-0 d-flex align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-gray-800">
-                    <i class="fas fa-list-ul mr-2 text-primary"></i>Employee Directory
-                </h6>
-                <div class="text-muted small">Showing {{ $users->firstItem() }} to {{ $users->lastItem() }} of
-                    {{ $users->total() }} entries
+            <div class="card-header bg-white py-3 border-0">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h6 class="m-0 font-weight-bold text-gray-800">
+                        <i class="fas fa-list-ul mr-2 text-primary"></i>Employee Directory
+                    </h6>
+                    <div class="text-muted small">Showing {{ $users->firstItem() }} to {{ $users->lastItem() }} of
+                        {{ $users->total() }} entries
+                    </div>
                 </div>
+                <form action="{{ route('users.index') }}" method="GET" class="mb-0">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control form-control-modern"
+                            placeholder="Search by name or email..." value="{{ $search ?? '' }}" />
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit" style="border-radius: 0 10px 10px 0;">
+                                <i class="fas fa-search"></i>
+                            </button>
+                            @if(!empty($search))
+                                <a href="{{ route('users.index') }}" class="btn btn-light border" style="border-radius: 0 10px 10px 0;">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </form>
             </div>
             <div class="table-responsive">
                 <table class="table modern-table mb-0" id="usersTable">

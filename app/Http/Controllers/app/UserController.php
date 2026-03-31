@@ -58,7 +58,16 @@ class UserController extends Controller
             $companies = Company::orderBy('name', 'asc')->whereIn('id', $company_access)->get();
         }
 
+        $search = $request->input('search');
+
         $users = User::where('role_type', 'user')->whereIn('company_id', $company_access)
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('first_name', 'LIKE', '%' . $search . '%')
+                        ->orWhere('last_name', 'LIKE', '%' . $search . '%')
+                        ->orWhere('email', 'LIKE', '%' . $search . '%');
+                });
+            })
             ->latest('id')
             ->paginate(30)
             ->through(function ($user) {
@@ -85,7 +94,8 @@ class UserController extends Controller
             'companies',
             'users_count',
             'banks',
-            'page_number'
+            'page_number',
+            'search'
         ));
     }
 
