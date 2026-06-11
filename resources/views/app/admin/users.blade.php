@@ -220,9 +220,9 @@
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Permanent</div>
-                            @php
+                             @php
                                 use App\Models\User;
-                                $permanentCount = User::where('employment_type', 'PERMANENT')->where('role_type', 'user')->count();
+                                $permanentCount = User::where('employment_type', 'PERMANENT')->count();
                             @endphp
                             <div class="h3 mb-0 font-weight-bold text-gray-800">{{ $permanentCount }}</div>
                         </div>
@@ -239,7 +239,7 @@
                         <div>
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Contractor</div>
                             @php
-                                $contractCount = User::where('employment_type', 'CONTRACT')->where('role_type', 'user')->count();
+                                $contractCount = User::where('employment_type', 'CONTRACT')->count();
                             @endphp
                             <div class="h3 mb-0 font-weight-bold text-gray-800">{{ $contractCount }}</div>
                         </div>
@@ -338,6 +338,7 @@
                                     <div class="d-flex flex-column text-muted small">
                                         <span
                                             class="text-primary font-weight-bold">{{ $user->designation ?: 'Unassigned' }}</span>
+                                        <span class="mt-1">Role: <strong class="text-dark">{{ strtoupper($user->role_type) }}</strong></span>
                                         <span class="mt-1">Gender: {{ ucfirst(strtolower($user->gender)) }}</span>
                                     </div>
                                 </td>

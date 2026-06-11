@@ -60,7 +60,10 @@ class UserController extends Controller
 
         $search = $request->input('search');
 
-        $users = User::where('role_type', 'user')->whereIn('company_id', $company_access)
+        $users = User::query()
+            ->when(!(Auth::check() && (Auth::user()->role_type === 'admin' || Auth::user()->role_type === 'approver')), function ($query) use ($company_access) {
+                $query->whereIn('company_id', $company_access);
+            })
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('first_name', 'LIKE', '%' . $search . '%')
@@ -71,7 +74,7 @@ class UserController extends Controller
             ->latest('id')
             ->paginate(30)
             ->through(function ($user) {
-                $c_id = Access::where('user_id', $user->id)->pluck('company_id')->first();
+                $c_id = Access::where('user_id', $user->id)->pluck('company_id')->first() ?? $user->company_id;
                 $user->designation = Company::where('id', $c_id)->pluck('name')->first();
 
                 $b_id = UserBank::where('user_id', $user->id)->pluck('bank_id')->first();
@@ -240,22 +243,32 @@ class UserController extends Controller
         }
 
         try {
-            $user = User::where('id', $id)->update([
+            $updateData = [
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'email' => $request->email,
                 'contacts' => $request->contacts,
                 'mobile_login' => substr($request->contacts, -9),
                 'id_number' => $request->id_number,
-                'gender' => $request->gender,
-                'pin_certificate' => $request->pin,
                 'staff_number' => $request->staff_no,
-                'employment_date' => $request->employment_date,
                 'employment_type' => $request->emp_type == 1 ? 'PERMANENT' : 'CONTRACT',
-                'contract_end' => $request->contract_end,
-                'role_type' => 'user',
                 'company_id' => $company_id,
-            ]);
+            ];
+
+            if ($request->has('gender')) {
+                $updateData['gender'] = $request->gender;
+            }
+            if ($request->has('pin')) {
+                $updateData['pin_certificate'] = $request->pin;
+            }
+            if ($request->has('employment_date')) {
+                $updateData['employment_date'] = $request->employment_date;
+            }
+            if ($request->has('contract_end')) {
+                $updateData['contract_end'] = $request->contract_end;
+            }
+
+            $user = User::where('id', $id)->update($updateData);
 
             if ($user) {
                 //Access to company
