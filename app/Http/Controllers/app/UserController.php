@@ -429,20 +429,21 @@ class UserController extends Controller
      */
     public function resetPassword(Request $request, $id)
     {
-        $request->validate([
-            'password' => 'required|min:8|confirmed',
-        ]);
-
         try {
             $user = User::findOrFail($id);
-            $user->password = Hash::make($request->password);
+            
+            // Generate a 10-digit numeric temporary password
+            $tempPassword = (string) mt_rand(1000000000, 9999999999);
+            
+            $user->password = Hash::make($tempPassword);
+            $user->updated_psw = 1; // Mark that user is on a temporary password
             $user->save();
 
             $admin = Auth::user();
             $adminName = $admin->first_name . ' ' . $admin->last_name;
 
-            // 1. Send Notification Email
-            Mail::to($user->email)->send(new PasswordChangedNotification($user, $adminName));
+            // 1. Send Notification Email with temporary password
+            Mail::to($user->email)->send(new PasswordChangedNotification($user, $adminName, $tempPassword));
 
             // 2. Create Audit Log
             Log::channel('activity')->info("Password Reset Action", [
@@ -455,6 +456,8 @@ class UserController extends Controller
             ]);
 
             session()->flash('message', 'Password reset successfully for ' . $user->first_name . '. Notification email sent.');
+            session()->flash('temp_password', $tempPassword);
+            session()->flash('temp_password_user', $user->first_name . ' ' . $user->last_name);
             return back();
         } catch (\Throwable $th) {
             session()->flash('error', 'Error resetting password: ' . $th->getMessage());
@@ -485,6 +488,7 @@ class UserController extends Controller
 
         // Update to new password
         $user->password = Hash::make($request->password);
+        $user->updated_psw = 0;
         $user->save();
 
         session()->flash('message', 'Your password has been changed successfully.');

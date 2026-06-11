@@ -182,11 +182,25 @@
 @section('content')
     <div class="container-fluid py-4">
         @if (session()->has('message'))
-            <div id="toast" class="alert alert-success border-0 shadow-sm d-flex align-items-center mb-4" role="alert"
-                style="border-radius: 12px;">
-                <i class="fas fa-check-circle mr-3 fa-lg"></i>
-                <div class="font-weight-bold">{{ session('message') }}</div>
-                <button type="button" class="close ml-auto" data-dismiss="alert">&times;</button>
+            <div id="toast" class="alert alert-success border-0 shadow-sm mb-4" role="alert"
+                style="border-radius: 12px; padding: 20px;">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-check-circle mr-3 fa-lg"></i>
+                    <div class="font-weight-bold">{{ session('message') }}</div>
+                    <button type="button" class="close ml-auto" data-dismiss="alert">&times;</button>
+                </div>
+                @if (session()->has('temp_password'))
+                    <div class="mt-3 p-3 bg-white text-dark rounded border border-success" style="border-radius: 10px;">
+                        <h6 class="font-weight-bold text-success mb-2"><i class="fas fa-key mr-2"></i>Temporary Passcode Generated</h6>
+                        <p class="mb-2">A temporary passcode has been generated for <strong>{{ session('temp_password_user') }}</strong>:</p>
+                        <div class="d-flex align-items-center">
+                            <span class="h4 font-weight-bold text-dark px-3 py-2 bg-light rounded border mr-3" style="font-family: monospace; letter-spacing: 2px;">{{ session('temp_password') }}</span>
+                            <button class="btn btn-sm btn-outline-success" onclick="navigator.clipboard.writeText('{{ session('temp_password') }}'); toastr.success('Copied to clipboard!')">
+                                <i class="fas fa-copy mr-1"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+                @endif
             </div>
         @endif
 
@@ -627,31 +641,17 @@
                         </div>
                         <form action="{{ route('users.resetPassword', $user->id) }}" method="POST">
                             @csrf
-                            <div class="modal-body p-4">
-                                <div class="text-center mb-4">
-                                    <div class="bg-warning-soft rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
-                                        style="width: 60px; height: 60px; background: rgba(246, 194, 62, 0.1);">
-                                        <i class="fas fa-lock text-warning fa-2x"></i>
-                                    </div>
-                                    <h6 class="font-weight-bold text-gray-800">Security Access for {{ $user->first_name }}</h6>
-                                    <p class="text-muted small">The user will receive an email notification after reset.</p>
+                            <div class="modal-body p-4 text-center">
+                                <div class="bg-warning-soft rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                                    style="width: 60px; height: 60px; background: rgba(246, 194, 62, 0.1);">
+                                    <i class="fas fa-lock text-warning fa-2x"></i>
                                 </div>
-
-                                <div class="form-group">
-                                    <label class="text-gray-700 font-weight-bold">New Password</label>
-                                    <input name="password" type="password" class="form-control form-control-modern"
-                                        placeholder="Minimum 8 characters" required minlength="8" />
-                                </div>
-                                <div class="form-group">
-                                    <label class="text-gray-700 font-weight-bold">Confirm New Password</label>
-                                    <input name="password_confirmation" type="password" class="form-control form-control-modern"
-                                        placeholder="Repeat password" required minlength="8" />
-                                </div>
+                                <h6 class="font-weight-bold text-gray-800">Reset Password for {{ $user->first_name }} {{ $user->last_name }}</h6>
+                                <p class="text-muted small">Are you sure you want to reset this user's password? A random 10-digit temporary passcode will be generated, sent to the user, and displayed to you.</p>
                             </div>
-                            <div class="modal-footer border-0 p-4 pt-0">
-                                <button class="btn btn-light btn-modern" type="button" data-dismiss="modal">Cancel</button>
-                                <button class="btn btn-warning btn-modern px-4 font-weight-bold shadow-sm" type="submit">Verify &
-                                    Reset</button>
+                            <div class="modal-footer border-0 p-4 pt-0 justify-content-center">
+                                <button class="btn btn-light btn-modern px-4" type="button" data-dismiss="modal">Cancel</button>
+                                <button class="btn btn-warning btn-modern px-4 font-weight-bold shadow-sm" type="submit">Generate & Reset</button>
                             </div>
                         </form>
                     </div>

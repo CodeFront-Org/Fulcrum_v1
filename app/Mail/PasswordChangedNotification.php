@@ -12,16 +12,18 @@ class PasswordChangedNotification extends Mailable
 
     public $user;
     public $adminName;
+    public $tempPassword;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($user, $adminName)
+    public function __construct($user, $adminName, $tempPassword)
     {
         $this->user = $user;
         $this->adminName = $adminName;
+        $this->tempPassword = $tempPassword;
     }
 
     /**

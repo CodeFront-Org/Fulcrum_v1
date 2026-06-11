@@ -168,6 +168,64 @@
         </script>
     @endif
 
+    @if (Auth::check() && Auth::user()->updated_psw == 1)
+        <!-- Force Change Password Modal -->
+        <div class="modal fade" id="forceChangePasswordModal" tabindex="-1" role="dialog" aria-labelledby="forceChangePasswordModalLabel" aria-hidden="true" style="z-index: 99999;">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+                    <div class="modal-header bg-danger text-white p-4">
+                        <h5 class="modal-title font-weight-bold" id="forceChangePasswordModalLabel">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>Change Temporary Password
+                        </h5>
+                    </div>
+                    <form action="{{ route('change_password') }}" method="POST">
+                        @csrf
+                        <div class="modal-body p-4">
+                            <div class="text-center mb-4">
+                                <div class="bg-danger-soft rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                                    style="width: 60px; height: 60px; background: rgba(220, 53, 69, 0.1);">
+                                    <i class="fas fa-lock text-danger fa-2x"></i>
+                                </div>
+                                <h6 class="font-weight-bold text-gray-800">Password Change Required</h6>
+                                <p class="text-muted small">You are logged in with a temporary password. You must set a new security passcode to continue.</p>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label class="text-gray-700 font-weight-bold small">Temporary Password (Current)</label>
+                                <input name="current_password" type="password" class="form-control"
+                                    style="border-radius: 10px; padding: 12px 16px;" placeholder="Enter temporary password" required />
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label class="text-gray-700 font-weight-bold small">New Password</label>
+                                <input name="password" type="password" class="form-control"
+                                    style="border-radius: 10px; padding: 12px 16px;" placeholder="Minimum 8 characters" required minlength="8" />
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label class="text-gray-700 font-weight-bold small">Confirm New Password</label>
+                                <input name="password_confirmation" type="password" class="form-control"
+                                    style="border-radius: 10px; padding: 12px 16px;" placeholder="Repeat new password" required minlength="8" />
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0 p-4 pt-0 text-center justify-content-center">
+                            <button class="btn btn-danger btn-block py-3 font-weight-bold shadow-sm" style="border-radius: 10px;" type="submit">Update & Activate Account</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                $('#forceChangePasswordModal').modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                $('#forceChangePasswordModal').modal('show');
+            });
+        </script>
+    @endif
+
 @yield('scripts')
 
 </body>

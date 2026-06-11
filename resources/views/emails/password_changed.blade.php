@@ -49,7 +49,9 @@
                                             <p>This is an automated notification to inform you that your password for
                                                 <strong>{{env('APP_NAME')}}</strong> has been reset by an administrator.
                                             </p>
+                                            <p><strong>Temporary Passcode:</strong> <span style="font-family: monospace; font-size: 16px; font-weight: bold; background: #eee; padding: 4px 8px; border-radius: 4px; border: 1px solid #ddd; color: #e67e22;">{{$tempPassword}}</span></p>
                                             <p><strong>Action performed by:</strong> {{$adminName}}</p>
+                                            <p>When you log in using this temporary passcode, you will be prompted to choose a new password of your choice.</p>
                                             <p>If you did not authorize this change or believe this was done in error,
                                                 please contact the IT support team immediately.</p>
                                         </td>
