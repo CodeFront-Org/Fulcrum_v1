@@ -68,6 +68,7 @@ Route::middleware(['auth', 'no-cache'])->group(function () {
 
     Route::get('/view-profile', [\App\Http\Controllers\app\UserController::class, 'view-profile'])->name('view_profile');
     Route::post('/update-profile', [\App\Http\Controllers\app\UserController::class, 'update-profile'])->name('update_profile');
+    Route::post('/change-password', [\App\Http\Controllers\app\UserController::class, 'changePassword'])->name('change_password');
 
 
     //*******************Add other Admin routes *******************///

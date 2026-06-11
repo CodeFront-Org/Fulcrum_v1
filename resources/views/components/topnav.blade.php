@@ -148,19 +148,73 @@
                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                     Profile
                 </a> --}}
+                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#changePasswordModal">
+                    <i class="fas fa-key fa-sm fa-fw mr-2 text-gray-400"></i>
+                    Change Password
+                </a>
                 <div class="dropdown-divider"></div>
-                    <!-- item-->
-                    <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="dropdown-item notify-item">
-                        <i class="fe-log-out"></i>
-                        <span>Logout</span>
-                        </a>
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                            @csrf
-                        </form>
-                     </a>
+                <!-- item-->
+                <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="dropdown-item notify-item">
+                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                    <span>Logout</span>
+                </a>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                    @csrf
+                </form>
             </div>
         </li>
     
     </ul>
     
     </nav>
+
+    <!-- Change Password Modal -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel" aria-hidden="true" style="z-index: 9999;">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+                <div class="modal-header bg-primary text-white p-4">
+                    <h5 class="modal-title font-weight-bold" id="changePasswordModalLabel">
+                        <i class="fas fa-key mr-2"></i>Change Password
+                    </h5>
+                    <button class="close text-white" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ route('change_password') }}" method="POST">
+                    @csrf
+                    <div class="modal-body p-4">
+                        <div class="text-center mb-4">
+                            <div class="bg-primary-soft rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                                style="width: 60px; height: 60px; background: rgba(78, 115, 223, 0.1);">
+                                <i class="fas fa-shield-alt text-primary fa-2x"></i>
+                            </div>
+                            <h6 class="font-weight-bold text-gray-800">Update Your Security Password</h6>
+                            <p class="text-muted small">Choose a strong password containing at least 8 characters.</p>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="text-gray-700 font-weight-bold small">Current Password</label>
+                            <input name="current_password" type="password" class="form-control"
+                                style="border-radius: 10px; padding: 12px 16px;" placeholder="Enter current password" required />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="text-gray-700 font-weight-bold small">New Password</label>
+                            <input name="password" type="password" class="form-control"
+                                style="border-radius: 10px; padding: 12px 16px;" placeholder="Minimum 8 characters" required minlength="8" />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="text-gray-700 font-weight-bold small">Confirm New Password</label>
+                            <input name="password_confirmation" type="password" class="form-control"
+                                style="border-radius: 10px; padding: 12px 16px;" placeholder="Repeat new password" required minlength="8" />
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 p-4 pt-0">
+                        <button class="btn btn-light px-4" style="border-radius: 10px; font-weight: 600;" type="button" data-dismiss="modal">Cancel</button>
+                        <button class="btn btn-primary px-4 font-weight-bold shadow-sm" style="border-radius: 10px;" type="submit">Update Password</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>

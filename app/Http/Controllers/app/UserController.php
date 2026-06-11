@@ -461,4 +461,33 @@ class UserController extends Controller
             return back();
         }
     }
+
+    /**
+     * Change the logged-in user's password.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'password' => 'required|min:8|confirmed',
+        ]);
+
+        $user = Auth::user();
+
+        // Check if current password matches
+        if (!Hash::check($request->current_password, $user->password)) {
+            session()->flash('error', 'The current password you entered is incorrect.');
+            return back();
+        }
+
+        // Update to new password
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        session()->flash('message', 'Your password has been changed successfully.');
+        return back();
+    }
 }
