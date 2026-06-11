@@ -432,8 +432,11 @@ class UserController extends Controller
         try {
             $user = User::findOrFail($id);
             
-            // Generate a 10-digit numeric temporary password
-            $tempPassword = (string) mt_rand(1000000000, 9999999999);
+            // Generate a 10-digit numeric temporary password (safe from float/overflow conversions)
+            $tempPassword = (string) mt_rand(1, 9);
+            for ($i = 0; $i < 9; $i++) {
+                $tempPassword .= (string) mt_rand(0, 9);
+            }
             
             $user->password = Hash::make($tempPassword);
             $user->updated_psw = 1; // Mark that user is on a temporary password
@@ -443,7 +446,14 @@ class UserController extends Controller
             $adminName = $admin->first_name . ' ' . $admin->last_name;
 
             // 1. Send Notification Email with temporary password
-            Mail::to($user->email)->send(new PasswordChangedNotification($user, $adminName, $tempPassword));
+            $emailSent = true;
+            $emailError = '';
+            try {
+                Mail::to($user->email)->send(new PasswordChangedNotification($user, $adminName, $tempPassword));
+            } catch (\Throwable $mailEx) {
+                $emailSent = false;
+                $emailError = $mailEx->getMessage();
+            }
 
             // 2. Create Audit Log
             Log::channel('activity')->info("Password Reset Action", [
@@ -455,7 +465,11 @@ class UserController extends Controller
                 'ip_address' => request()->ip()
             ]);
 
-            session()->flash('message', 'Password reset successfully for ' . $user->first_name . '. Notification email sent.');
+            if ($emailSent) {
+                session()->flash('message', 'Password reset successfully for ' . $user->first_name . '. Notification email sent.');
+            } else {
+                session()->flash('message', 'Password reset successfully for ' . $user->first_name . ', but the notification email could not be sent (Error: ' . $emailError . '). Please share the temporary passcode below with the user.');
+            }
             session()->flash('temp_password', $tempPassword);
             session()->flash('temp_password_user', $user->first_name . ' ' . $user->last_name);
             return back();
