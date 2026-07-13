@@ -27,8 +27,23 @@ Route::get('/send-mail', [App\Http\Controllers\MailController::class, 'sendEmail
 
 Route::get('/run-migrations', function () {
     try {
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        return 'Migrations run successfully:<br><pre>' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
+        $output = '';
+
+        // Run CreateCompanyFormFieldsTable migration
+        \Illuminate\Support\Facades\Artisan::call('migrate', [
+            '--path' => 'database/migrations/2026_07_13_120000_create_company_form_fields_table.php',
+            '--force' => true
+        ]);
+        $output .= "Form Fields Table Migration:\n" . \Illuminate\Support\Facades\Artisan::output() . "\n";
+
+        // Run AddCustomFieldsToLoansTable migration
+        \Illuminate\Support\Facades\Artisan::call('migrate', [
+            '--path' => 'database/migrations/2026_07_13_120100_add_custom_fields_to_loans_table.php',
+            '--force' => true
+        ]);
+        $output .= "Custom Fields Column Migration:\n" . \Illuminate\Support\Facades\Artisan::output() . "\n";
+
+        return 'Migrations run successfully:<br><pre>' . $output . '</pre>';
     } catch (\Exception $e) {
         return 'Error running migrations:<br><pre>' . $e->getMessage() . '</pre>';
     }
