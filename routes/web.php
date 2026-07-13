@@ -25,6 +25,15 @@ use App\Http\Controllers\RepaymentController;
 
 Route::get('/send-mail', [App\Http\Controllers\MailController::class, 'sendEmail'])->name('/send-mail');
 
+Route::get('/run-migrations', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        return 'Migrations run successfully:<br><pre>' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
+    } catch (\Exception $e) {
+        return 'Error running migrations:<br><pre>' . $e->getMessage() . '</pre>';
+    }
+});
+
 Route::get('/(secure)/index.html', function () {
     return redirect('/login');
 });
