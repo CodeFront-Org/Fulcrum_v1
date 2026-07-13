@@ -20,4 +20,8 @@ class Loan extends Model
     }
     
     protected $guarded=[];
+
+    protected $casts = [
+        'custom_fields' => 'array',
+    ];
 }

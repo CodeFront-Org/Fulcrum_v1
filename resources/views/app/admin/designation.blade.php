@@ -139,6 +139,9 @@
                                 @endfor
                                 <td>
                                     <div class="d-flex justify-content-center">
+                                        <a href="{{ route('companies.fields.index', $item['id']) }}" class="action-btn mr-2" title="Manage Form Fields">
+                                            <i class="fas fa-wpforms fa-xs text-info"></i>
+                                        </a>
                                         <button type="button" class="action-btn mr-2" data-toggle="modal"
                                             data-target="#designation-edit-{{ $item['id'] }}" title="Edit Designation">
                                             <i class='fas fa-pen fa-xs text-primary'></i>

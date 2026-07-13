@@ -63,7 +63,10 @@ class LoanController extends Controller
             $applicant_id = User::where('id', $user_id)->pluck('id_number')->first();
             $contract_end = User::where('id', $user_id)->pluck('contract_end')->first();
             $company_id = Access::where('user_id', Auth::id())->pluck('company_id')->first();
-            $company = Company::where('id', $company_id)->pluck('name')->first();
+            $company_model = Company::find($company_id);
+            $company = $company_model ? $company_model->name : '';
+            $custom_fields = $company_model ? $company_model->formFields : collect();
+            $filled_values = [];
             $kin = '';
             $kin_contacts = '';
 
@@ -84,7 +87,9 @@ class LoanController extends Controller
                 'kin_contacts',
                 'outstanding_loan',
                 'outstanding_loan_org',
-                'outstanding_loan_balance'
+                'outstanding_loan_balance',
+                'custom_fields',
+                'filled_values'
             ));
         } elseif ($p == 1) { //Means user submitted step one that contained NEXT OF KIN Details.
             $loan = Loan::where('user_id', Auth::id())->whereIn('progress', ['1', '2', '3', '4'])->orderBy('id', 'desc')->first();
@@ -95,7 +100,10 @@ class LoanController extends Controller
             $applicant_id = User::where('id', $user_id)->pluck('id_number')->first();
             $contract_end = User::where('id', $user_id)->pluck('contract_end')->first();
             $company_id = Access::where('user_id', Auth::id())->pluck('company_id')->first();
-            $company = Company::where('id', $company_id)->pluck('name')->first();
+            $company_model = Company::find($company_id);
+            $company = $company_model ? $company_model->name : '';
+            $custom_fields = $company_model ? $company_model->formFields : collect();
+            $filled_values = collect($loan->custom_fields)->pluck('value', 'id')->toArray();
             $kin = $loan->kin;
             $kin_contacts = $loan->kin_contacts;
 
@@ -116,7 +124,9 @@ class LoanController extends Controller
                 'kin_contacts',
                 'outstanding_loan',
                 'outstanding_loan_org',
-                'outstanding_loan_balance'
+                'outstanding_loan_balance',
+                'custom_fields',
+                'filled_values'
             ));
         } elseif ($p == 2) {
             $loan = Loan::where('user_id', Auth::id())->whereIn('progress', ['1', '2', '3', '4'])->orderBy('id', 'desc')->first();
@@ -236,12 +246,36 @@ class LoanController extends Controller
         // Use type to know where the update is coming from so as one can store info as per the progress
         $type = $request->type;
         if ($type == 1) {//Store request for step 1
+            // Fetch company form fields configuration for validation
+            $company_id = Access::where('user_id', Auth::id())->pluck('company_id')->first();
+            $company_model = Company::find($company_id);
+            $customFieldsConfig = $company_model ? $company_model->formFields : collect();
+
+            $customFieldsData = [];
+            foreach ($customFieldsConfig as $field) {
+                $fieldName = 'field_' . $field->id;
+                $value = $request->input($fieldName);
+
+                if ($field->is_required && (is_null($value) || $value === '')) {
+                    session()->flash('error', $field->label . ' is required.');
+                    return back()->withInput();
+                }
+
+                $customFieldsData[] = [
+                    'id' => $field->id,
+                    'label' => $field->label,
+                    'value' => $value,
+                    'type' => $field->type,
+                ];
+            }
+
             //First check to see if the user has a recent loan application to avoid creatinf new duplicates
             if (Loan::where('user_id', Auth::id())->whereIn('progress', [1, 2, 3, 4])->exists()) { // Loan appliation already exists so just update the submitted details
                 $loan_id = Loan::where('user_id', Auth::id())->whereIn('progress', [1, 2, 3, 4])->pluck('id')->last();
                 Loan::where('id', $loan_id)->update([
                     'kin' => $request->kin,
                     'kin_contacts' => $request->kin_mobile,
+                    'custom_fields' => $customFieldsData,
                     // 'outstanding_loan'=>$request->outstanding_loan,
                     // 'outstanding_loan_org'=>$request->outstanding_loan==0?NULL:$request->financial_institution,
                     // 'outstanding_loan_balance'=>$request->outstanding_loan==0?NULL:$request->loan_bal,
@@ -257,6 +291,7 @@ class LoanController extends Controller
                     'alternative_contacts' => User::where('id', Auth::id())->pluck('alternative_contacts')->first(),
                     'kin' => $request->kin,
                     'kin_contacts' => $request->kin_mobile,
+                    'custom_fields' => $customFieldsData,
                     // 'outstanding_loan'=>$request->outstanding_loan,
                     // 'outstanding_loan_org'=>$request->outstanding_loan==0?NULL:$request->financial_institution,
                     // 'outstanding_loan_balance'=>$request->outstanding_loan==0?NULL:$request->loan_bal,

@@ -12,9 +12,14 @@ class Company extends Model
     protected $guarded=[];
 
 
-public function repayments()
-{
-    return $this->hasMany(\App\Models\Repayment::class);
-}
+    public function repayments()
+    {
+        return $this->hasMany(\App\Models\Repayment::class);
+    }
+
+    public function formFields()
+    {
+        return $this->hasMany(\App\Models\CompanyFormField::class, 'company_id')->orderBy('sort_order');
+    }
 
 }

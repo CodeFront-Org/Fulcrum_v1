@@ -221,6 +221,61 @@
                                 </div>
                             </div>
 
+                            @if(count($custom_fields) > 0)
+                                <hr class="my-4">
+                                <div class="form-section-title">
+                                    <i class="fas fa-list-alt text-primary mr-3" style="width: 32px; height: 32px; background: rgba(78, 115, 223, 0.1); color: #4e73df; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.9rem;"></i>
+                                    Additional Information Required
+                                </div>
+                                <div class="row">
+                                    @foreach($custom_fields as $field)
+                                        <div class="col-md-6 mb-4">
+                                            <label class="font-weight-bold text-gray-700 small">
+                                                {{ $field->label }}
+                                                @if($field->is_required)
+                                                    <span class="text-danger">*</span>
+                                                @endif
+                                            </label>
+                                            
+                                            @if($field->type === 'text')
+                                                <input name="field_{{ $field->id }}" type="text" 
+                                                    value="{{ old('field_'.$field->id, $filled_values[$field->id] ?? '') }}"
+                                                    class="form-control form-control-modern" 
+                                                    placeholder="Enter details"
+                                                    {{ $field->is_required ? 'required' : '' }} />
+                                            @elseif($field->type === 'number')
+                                                <input name="field_{{ $field->id }}" type="number" 
+                                                    value="{{ old('field_'.$field->id, $filled_values[$field->id] ?? '') }}"
+                                                    class="form-control form-control-modern" 
+                                                    placeholder="Enter number"
+                                                    {{ $field->is_required ? 'required' : '' }} />
+                                            @elseif($field->type === 'textarea')
+                                                <textarea name="field_{{ $field->id }}" 
+                                                    class="form-control form-control-modern" 
+                                                    rows="3" 
+                                                    placeholder="Enter details"
+                                                    {{ $field->is_required ? 'required' : '' }}>{{ old('field_'.$field->id, $filled_values[$field->id] ?? '') }}</textarea>
+                                            @elseif($field->type === 'combobox')
+                                                <select name="field_{{ $field->id }}" 
+                                                    class="form-control form-control-modern"
+                                                    {{ $field->is_required ? 'required' : '' }}>
+                                                    <option value="">-- Select option --</option>
+                                                    @if($field->options)
+                                                        @foreach(explode(',', $field->options) as $opt)
+                                                            @php $optValue = trim($opt); @endphp
+                                                            <option value="{{ $optValue }}" 
+                                                                {{ old('field_'.$field->id, $filled_values[$field->id] ?? '') === $optValue ? 'selected' : '' }}>
+                                                                {{ $optValue }}
+                                                            </option>
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+
                             <hr class="my-4">
 
                             <div class="form-section-title">

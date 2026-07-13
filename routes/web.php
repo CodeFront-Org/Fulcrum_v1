@@ -60,6 +60,10 @@ Route::middleware(['auth', 'no-cache'])->group(function () {
     Route::post('/users/{id}/reset-password', [\App\Http\Controllers\app\UserController::class, 'resetPassword'])->name('users.resetPassword')->middleware('admin');
 
     Route::resource('companies', \App\Http\Controllers\app\CompaniesController::class)->middleware('admin');
+    Route::get('/companies/{company_id}/fields', [\App\Http\Controllers\app\CompanyFormFieldController::class, 'index'])->name('companies.fields.index')->middleware('admin');
+    Route::post('/companies/{company_id}/fields', [\App\Http\Controllers\app\CompanyFormFieldController::class, 'store'])->name('companies.fields.store')->middleware('admin');
+    Route::put('/companies/fields/{id}', [\App\Http\Controllers\app\CompanyFormFieldController::class, 'update'])->name('companies.fields.update')->middleware('admin');
+    Route::delete('/companies/fields/{id}', [\App\Http\Controllers\app\CompanyFormFieldController::class, 'destroy'])->name('companies.fields.destroy')->middleware('admin');
     Route::resource('banks', \App\Http\Controllers\app\BankController::class)->middleware('admin');
     Route::resource('roles', \App\Http\Controllers\app\RolesController::class)->middleware('admin');
     Route::resource('loan', \App\Http\Controllers\app\LoanController::class);

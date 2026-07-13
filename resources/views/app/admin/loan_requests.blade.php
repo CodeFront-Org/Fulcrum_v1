@@ -350,6 +350,20 @@
                                     <div class="info-value small">{{ $item->kin_contacts }}</div>
                                 </div>
 
+                                @if($item->custom_fields && count($item->custom_fields) > 0)
+                                    <div class="col-md-12 mb-3">
+                                        <div class="font-weight-bold text-gray-800 border-top pt-2 mt-1 mb-2">Scheme Specific Details</div>
+                                        <div class="row">
+                                            @foreach($item->custom_fields as $cfield)
+                                                <div class="col-md-4 mb-3">
+                                                    <div class="info-label">{{ $cfield['label'] }}</div>
+                                                    <div class="info-value small">{{ $cfield['value'] ?? 'N/A' }}</div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+
                                 <div class="col-md-12">
                                     <div class="d-flex align-items-center justify-content-between bg-white p-3 rounded border">
                                         <div class="small">
