@@ -2,15 +2,26 @@
 
 namespace App\Http\Controllers\auth;
 
+use App\Http\Controllers\app\SmsController;
 use App\Http\Controllers\Controller;
+use App\Mail\VerifyOTP;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class OtpController extends Controller
 {
+    protected $smsController;
+
+    public function __construct(SmsController $smsController)
+    {
+        $this->smsController = $smsController;
+    }
+
     public function otp(Request $request){
         return view('auth.otp') ;
     }
@@ -20,7 +31,7 @@ class OtpController extends Controller
         $email=$request->email;
         $otp=$request->otp;
         //Get otp from the database
-        $user_id=User::where('email',$email)->orWhere('contacts',$email)->pluck('id')->first();
+        $user_id=User::where('email',$email)->orWhere('contacts',$email)->orWhere('mobile_login',substr($email,-9))->pluck('id')->first();
 
         $user=User::find($user_id);
 
@@ -43,47 +54,49 @@ class OtpController extends Controller
     }
 
     public function send_otp(Request $request){
-        //Sending OTP
-        $email=$request->email;
-        $otp_no=mt_rand(10000, 99999);
-        $otp_expire=Carbon::now()->addMinutes(5);
-        $contacts=User::where('email',$email)->pluck('mpesa_contact')->first();
-        $otp="Your JuaSmart OTP is ".$otp_no;
-        $phone_number=$contacts;
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-        CURLOPT_URL => env('SMS_URL'),
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 15,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'POST',
-        CURLOPT_POSTFIELDS =>'{
-            "mobile":"'.$phone_number.'",
-            "response_type": "json",
-            "sender_name":"'.env('SENDER_NAME').'",
-            "service_id": 0,
-            "message": "'.$otp.'"
-        }',
-        CURLOPT_HTTPHEADER => array(
-            'h_api_key:'.env('SMS_KEY'),
-            'Content-Type: application/json'
-        ),
-        ));
+        $login = $request->email;
+        $user = User::where('email', $login)
+            ->orWhere('contacts', $login)
+            ->orWhere('mobile_login', substr($login, -9))
+            ->first();
 
-        $response = curl_exec($curl);
-        $responseData = json_decode($response, true);
-
-        $status_code = $responseData[0]['status_code'];
-        if($status_code==1000){//otp sent successfully
-
-        User::where('email',$email)->update(['otp'=>$otp_no,'otp_expiry'=>$otp_expire]);
-        return "1";
-        }else{
-        return "2"; // otp not sent
+        if (!$user) {
+            return "2";
         }
+
+        $otp = rand(10000, 99999);
+        $hashedOtp = Hash::make($otp);
+        $otpExpiryTime = Carbon::now()->addMinutes(15);
+
+        User::where('id', $user->id)->update([
+            'otp' => $hashedOtp,
+            'otp_expiry' => $otpExpiryTime,
+            'is_verified' => 1
+        ]);
+
+        // 1. Send OTP via Email first
+        try {
+            if (!empty($user->email)) {
+                Mail::to($user->email)->send(new VerifyOTP($otp, $user->email));
+            }
+        } catch (\Throwable $e) {
+            Log::error("Failed to send OTP email to {$user->email}: " . $e->getMessage());
+        }
+
+        // 2. Send OTP via Mobile Phone (SMS)
+        try {
+            if (!empty($user->contacts)) {
+                $msg = "Your Verification code is,\n" .
+                    "$otp \n" .
+                    "Expires at $otpExpiryTime.\n" .
+                    "Fulcrum Link.";
+                $this->smsController->send_sms($user->contacts, $msg);
+            }
+        } catch (\Throwable $e) {
+            Log::error("Failed to send OTP SMS to {$user->contacts}: " . $e->getMessage());
+        }
+
+        return "1";
     }
 
 

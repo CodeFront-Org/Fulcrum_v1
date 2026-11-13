@@ -113,20 +113,27 @@ class AuthController extends Controller
 
       
 
-        // sending via email:
-        Mail::to($user->email)->send(new VerifyOTP($otp,$user->email));
-       // Mail::to("test@gmail.com")->send(new VerifyOTP($otp,"test@gmail.com"));
+        // 2. Send OTP via Email first
+        try {
+            if (!empty($user->email)) {
+                Mail::to($user->email)->send(new VerifyOTP($otp, $user->email));
+            }
+        } catch (\Throwable $e) {
+            Log::error("Failed to send OTP email to {$user->email}: " . $e->getMessage());
+        }
 
-
-          // 4. Send the OTP to the user (via email or SMS)
-        $msg = "Your Verification code is,\n" .
-        "$otp \n".
-        "Expires at $otpExpirytTime.\n".
-        "Fulcrum Link.";
-        $this->smsController->send_sms($user->contacts,$msg);
-        //$this->smsController->send_sms('07000000',$msg);
-
-
+        // 3. Send OTP via Mobile Phone (SMS)
+        try {
+            if (!empty($user->contacts)) {
+                $msg = "Your Verification code is,\n" .
+                    "$otp \n" .
+                    "Expires at $otpExpirytTime.\n" .
+                    "Fulcrum Link.";
+                $this->smsController->send_sms($user->contacts, $msg);
+            }
+        } catch (\Throwable $e) {
+            Log::error("Failed to send OTP SMS to {$user->contacts}: " . $e->getMessage());
+        }
 
         return; //response()->json(['message' => 'OTP sent successfully']);
     }
