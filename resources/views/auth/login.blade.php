@@ -180,7 +180,11 @@
                                 "showMethod": "fadeIn",
                                 "hideMethod": "fadeOut"
                             }
-                            toastr["success"]("", "An OTP has been sent to your device. You will be redirected shortly.")
+                            var destinations = [response.phone, response.email].filter(Boolean).join(" and ");
+                            var otpMsg = destinations
+                                ? "An OTP has been sent to " + destinations + ". You will be redirected shortly."
+                                : "An OTP has been sent to your device. You will be redirected shortly.";
+                            toastr["success"]("", otpMsg)
 
                             localStorage.setItem('otp_email_fltd',contacts)
 

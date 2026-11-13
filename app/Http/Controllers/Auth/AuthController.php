@@ -82,7 +82,16 @@ class AuthController extends Controller
                 }elseif($role=='admin'){
                     $url='/admin/home';
                 }
-                return response()->json(['status'=>true,'msg'=>'otp_sent'],200);
+
+                $maskedPhone = $this->maskPhone($user->contacts);
+                $maskedEmail = $this->maskEmail($user->email);
+
+                return response()->json([
+                    'status' => true,
+                    'msg' => 'otp_sent',
+                    'phone' => $maskedPhone,
+                    'email' => $maskedEmail,
+                ], 200);
             }else{
                 return response()->json(['status'=>false,'msg'=>'Wrong Mobile or Passcode'],401);
             }
@@ -169,6 +178,33 @@ class AuthController extends Controller
         }else{//Create a new record for new IP login attempt
             Logged::create(['ip'=>$ip]);
         }
+    }
+
+    private function maskPhone($phone)
+    {
+        if (empty($phone)) {
+            return '';
+        }
+        $phone = trim($phone);
+        if (strlen($phone) > 6) {
+            return substr($phone, 0, 3) . ' *** ' . substr($phone, -3);
+        }
+        return substr($phone, 0, 1) . ' *** ' . substr($phone, -1);
+    }
+
+    private function maskEmail($email)
+    {
+        if (empty($email) || !str_contains($email, '@')) {
+            return '';
+        }
+        [$localPart, $domain] = explode('@', trim($email), 2);
+        $len = strlen($localPart);
+        if ($len > 3) {
+            return substr($localPart, 0, 1) . '***' . substr($localPart, -2) . '@' . $domain;
+        } elseif ($len > 1) {
+            return substr($localPart, 0, 1) . '***' . substr($localPart, -1) . '@' . $domain;
+        }
+        return $localPart . '***@' . $domain;
     }
 
 }
