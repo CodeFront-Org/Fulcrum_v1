@@ -187,7 +187,7 @@
                             <div class="col-md-5 form-group mb-4">
                                 <label class="font-weight-bold text-gray-700">Monthly Repayment Limit (% of Net Pay)</label>
                                 <input name="repayment_limit_percent" type="number" step="0.01" min="1" max="100"
-                                    class="form-control form-control-modern" placeholder="e.g. 30" required />
+                                    class="form-control form-control-modern" placeholder="e.g. 30 (Leave blank for no limit)" />
                             </div>
                         </div>
 
@@ -237,7 +237,7 @@
                                     <label class="font-weight-bold text-gray-700">Monthly Repayment Limit (% of Net Pay)</label>
                                     <input name="repayment_limit_percent" type="number" step="0.01" min="1" max="100"
                                         value="{{ $item['repayment_limit_percent'] }}"
-                                        class="form-control form-control-modern" placeholder="e.g. 30" required />
+                                        class="form-control form-control-modern" placeholder="e.g. 30 (Leave blank for no limit)" />
                                 </div>
                             </div>
 
