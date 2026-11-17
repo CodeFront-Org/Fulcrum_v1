@@ -122,6 +122,7 @@
                         <tr>
                             <th style="width: 50px;">#</th>
                             <th style="min-width: 150px;">Designation Name</th>
+                            <th class="text-center">Repayment Limit (%)</th>
                             @for ($i = 1; $i <= 12; $i++)
                                 <th class="text-center">M{{$i}}</th>
                             @endfor
@@ -133,6 +134,9 @@
                             <tr>
                                 <td class="text-muted small">{{ $loop->iteration }}</td>
                                 <td><span class="font-weight-bold text-gray-800">{{ $item['name'] }}</span></td>
+                                <td class="text-center rate-cell">
+                                    {{ $item['repayment_limit_percent'] !== null ? number_format($item['repayment_limit_percent'], 2) . '%' : 'N/A' }}
+                                </td>
                                 @for ($i = 1; $i <= 12; $i++)
                                     @php $fieldName = 'month' . $i; @endphp
                                     <td class="text-center rate-cell">{{ number_format($item[$fieldName], 3) }}</td>
@@ -174,10 +178,17 @@
                 <form action="{{ route('companies.store') }}" method="POST">
                     @csrf
                     <div class="modal-body p-4">
-                        <div class="form-group mb-4">
-                            <label class="font-weight-bold text-gray-700">Designation / Profile Name</label>
-                            <input name="name" type="text" class="form-control form-control-modern"
-                                placeholder="e.g. Standard Scheme - VIP" required />
+                        <div class="row">
+                            <div class="col-md-7 form-group mb-4">
+                                <label class="font-weight-bold text-gray-700">Designation / Profile Name</label>
+                                <input name="name" type="text" class="form-control form-control-modern"
+                                    placeholder="e.g. Standard Scheme - VIP" required />
+                            </div>
+                            <div class="col-md-5 form-group mb-4">
+                                <label class="font-weight-bold text-gray-700">Monthly Repayment Limit (% of Net Pay)</label>
+                                <input name="repayment_limit_percent" type="number" step="0.01" min="1" max="100"
+                                    class="form-control form-control-modern" placeholder="e.g. 30" required />
+                            </div>
                         </div>
 
                         <h6 class="text-primary font-weight-bold mb-3 border-bottom pb-2">Monthly Interest Factors</h6>
@@ -216,10 +227,18 @@
                         @method('PATCH')
                         @csrf
                         <div class="modal-body p-4">
-                            <div class="form-group mb-4">
-                                <label class="font-weight-bold text-gray-700">Designation Name</label>
-                                <input name="name" type="text" value="{{ $item['name'] }}"
-                                    class="form-control form-control-modern" required />
+                            <div class="row">
+                                <div class="col-md-7 form-group mb-4">
+                                    <label class="font-weight-bold text-gray-700">Designation Name</label>
+                                    <input name="name" type="text" value="{{ $item['name'] }}"
+                                        class="form-control form-control-modern" required />
+                                </div>
+                                <div class="col-md-5 form-group mb-4">
+                                    <label class="font-weight-bold text-gray-700">Monthly Repayment Limit (% of Net Pay)</label>
+                                    <input name="repayment_limit_percent" type="number" step="0.01" min="1" max="100"
+                                        value="{{ $item['repayment_limit_percent'] }}"
+                                        class="form-control form-control-modern" placeholder="e.g. 30" required />
+                                </div>
                             </div>
 
                             <h6 class="text-primary font-weight-bold mb-3 border-bottom pb-2">Update Factors</h6>

@@ -154,6 +154,13 @@
                 <!-- Form Card -->
                 <div class="card loan-form-card mt-5">
                     <div class="card-body p-4 p-lg-5">
+                        @if (session()->has('error'))
+                            <div class="alert alert-danger border-0 shadow-sm mb-4" role="alert" style="border-radius: 12px;">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>
+                                <strong>{{ session('error') }}</strong>
+                            </div>
+                        @endif
+
                         <div class="form-section-title">
                             <i class="fas fa-hand-holding-usd"></i>
                             Loan Configuration
@@ -172,7 +179,7 @@
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text bg-light border-right-0">KES</span>
                                                 </div>
-                                                <input name="loan" id="loanAmt" value="{{ $loan_amt }}" type="number"
+                                                <input name="loan" id="loanAmt" value="{{ old('loan', $loan_amt) }}" type="number"
                                                     class="form-control form-control-modern border-left-0"
                                                     placeholder="Enter amount" required />
                                             </div>
@@ -183,7 +190,7 @@
                                                 id="field-period" required>
                                                 <option value="" disabled selected>Select period (Months)</option>
                                                 @foreach ($periods as $item)
-                                                    <option {{ $period == $loop->index + 1 ? 'selected' : '' }}
+                                                    <option {{ old('period', $period) == $loop->index + 1 ? 'selected' : '' }}
                                                         value="{{ $loop->index + 1 }}" data-val="{{ $item }}"
                                                         data-description="{{ $loop->index + 1 }}">{{ $loop->index + 1 }} Months
                                                     </option>
@@ -193,13 +200,24 @@
                                     </div>
                                 </div>
                                 <div class="col-md-5 mb-4">
-                                    <div class="emi-display">
+                                    <div class="emi-display" id="emi-box">
                                         <span class="small font-weight-bold text-uppercase" style="opacity: 0.8">Estimated
                                             Monthly Installment</span>
                                         <span class="emi-val" id="display-emi">0.00</span>
                                         <input type="hidden" name="installments" id="M_I" value="{{ $installment }}">
-                                        <span class="small" style="opacity: 0.6">*Calculated based on designation
+                                        <span class="small d-block" style="opacity: 0.6">*Calculated based on designation
                                             rate</span>
+                                        @if (!is_null($max_monthly_installment))
+                                            <span class="small d-block mt-2 pt-2 border-top" style="border-color: rgba(255,255,255,0.25) !important;">
+                                                Max Allowed ({{ number_format($repayment_limit_percent, 1) }}% of Net Pay):
+                                                <strong>KES {{ number_format($max_monthly_installment, 2) }}</strong>
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <div id="emi-limit-error" class="alert alert-danger mt-2 mb-0 py-2 px-3 small" style="display: none; border-radius: 10px;">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>
+                                        Monthly repayment cannot exceed <strong>{{ number_format($repayment_limit_percent ?? 0, 1) }}%</strong> of your net salary
+                                        (<strong>KES {{ number_format($max_monthly_installment ?? 0, 2) }}</strong>). Please reduce the loan amount or increase the duration.
                                     </div>
                                 </div>
                             </div>
@@ -233,7 +251,7 @@
                                         Loan</label>
                                     <textarea name="desc" class="form-control form-control-modern" rows="4"
                                         placeholder="Briefly describe the purpose of this loan request..."
-                                        required>{{ $reason }}</textarea>
+                                        required>{{ old('desc', $reason) }}</textarea>
                                 </div>
                             </div>
 
@@ -241,7 +259,7 @@
                                 <a href="{{ route('loan.index', ['p' => 2]) }}" class="btn btn-light btn-modern text-muted">
                                     <i class="fas fa-chevron-left mr-2"></i> Previous Step
                                 </a>
-                                <button class="btn btn-primary btn-modern px-5 shadow" type="submit">
+                                <button id="submit-step3-btn" class="btn btn-primary btn-modern px-5 shadow" type="submit">
                                     Finalize Request <i class="fas fa-chevron-right ml-2"></i>
                                 </button>
                             </div>
@@ -256,6 +274,8 @@
 @section('scripts')
     <script>
         $(document).ready(function () {
+            const maxMonthlyInstallment = @json($max_monthly_installment);
+
             function calculateEMI() {
                 const selectedOption = $('#field-period').find('option:selected');
                 const n_months = parseInt(selectedOption.data('description'), 10);
@@ -268,9 +288,22 @@
                         const formattedEMI = EMI.toFixed(2);
                         $("#M_I").val(formattedEMI);
                         $("#display-emi").text(new Intl.NumberFormat('en-KE', { minimumFractionDigits: 2 }).format(EMI));
+
+                        if (maxMonthlyInstallment !== null && Math.ceil(EMI) > maxMonthlyInstallment) {
+                            $('#emi-limit-error').slideDown(200);
+                            $('#emi-box').css('background', '#e74a3b');
+                            $('#submit-step3-btn').prop('disabled', true);
+                        } else {
+                            $('#emi-limit-error').slideUp(200);
+                            $('#emi-box').css('background', '#4e73df');
+                            $('#submit-step3-btn').prop('disabled', false);
+                        }
                     }
                 } else {
                     $("#display-emi").text("0.00");
+                    $('#emi-limit-error').slideUp(200);
+                    $('#emi-box').css('background', '#4e73df');
+                    $('#submit-step3-btn').prop('disabled', false);
                 }
             }
 

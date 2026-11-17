@@ -43,6 +43,13 @@ Route::get('/run-migrations', function () {
         ]);
         $output .= "Custom Fields Column Migration:\n" . \Illuminate\Support\Facades\Artisan::output() . "\n";
 
+        // Run AddRepaymentLimitPercentToCompaniesTable migration
+        \Illuminate\Support\Facades\Artisan::call('migrate', [
+            '--path' => 'database/migrations/2026_11_17_120000_add_repayment_limit_percent_to_companies_table.php',
+            '--force' => true
+        ]);
+        $output .= "Repayment Limit Percent Column Migration:\n" . \Illuminate\Support\Facades\Artisan::output() . "\n";
+
         return 'Migrations run successfully:<br><pre>' . $output . '</pre>';
     } catch (\Exception $e) {
         return 'Error running migrations:<br><pre>' . $e->getMessage() . '</pre>';

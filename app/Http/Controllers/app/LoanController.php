@@ -166,6 +166,10 @@ class LoanController extends Controller
             // Retrieve the company data
             $company = Company::find($company_id);
 
+            $net_salary = (float) $loan->net_salary;
+            $repayment_limit_percent = $company && $company->repayment_limit_percent > 0 ? (float) $company->repayment_limit_percent : null;
+            $max_monthly_installment = $repayment_limit_percent ? ($net_salary * ($repayment_limit_percent / 100)) : null;
+
             // Store month fields that are not null
             $periods = array_filter([
                 'month1' => $company->month1,
@@ -190,6 +194,9 @@ class LoanController extends Controller
                 'is_upload',
                 'file_name',
                 'periods',
+                'net_salary',
+                'repayment_limit_percent',
+                'max_monthly_installment',
             ));
         } elseif ($p == 4) {
             $loan = Loan::where('user_id', Auth::id())->whereIn('progress', ['1', '2', '3', '4'])->orderBy('id', 'desc')->first();
@@ -315,11 +322,26 @@ class LoanController extends Controller
             return redirect()->route('loan.index');
 
         } elseif ($type == 3) {
-            $loan_id = Loan::where('user_id', Auth::id())->whereIn('progress', [1, 2, 3, 4])->pluck('id')->last();
+            $loan_record = Loan::where('user_id', Auth::id())->whereIn('progress', [1, 2, 3, 4])->orderBy('id', 'desc')->first();
+            $loan_id = $loan_record->id;
+
+            // Validate monthly installment against scheme's repayment limit percent of net pay
+            $company_id = Access::where('user_id', Auth::id())->pluck('company_id')->first();
+            $company = Company::find($company_id);
+            $monthly_installment = ceil($request->installments);
+
+            if ($company && $company->repayment_limit_percent > 0) {
+                $max_monthly_installment = ((float) $loan_record->net_salary) * (((float) $company->repayment_limit_percent) / 100);
+                if ($monthly_installment > $max_monthly_installment) {
+                    session()->flash('error', 'Your monthly repayment of KES ' . number_format($monthly_installment, 2) . ' exceeds the maximum allowed ' . number_format($company->repayment_limit_percent, 2) . '% of your net salary (KES ' . number_format($max_monthly_installment, 2) . '). Please reduce the loan amount or choose a longer repayment duration.');
+                    return back()->withInput();
+                }
+            }
+
             $upd = Loan::where('id', $loan_id)->update([
                 'requested_loan_amount' => $request->loan,
                 'payment_period' => $request->period,
-                'monthly_installments' => ceil($request->installments),
+                'monthly_installments' => $monthly_installment,
                 'amount_payable' => ceil($request->installments * $request->period),
                 'loan_reason' => $request->desc,
                 'progress' => 4,

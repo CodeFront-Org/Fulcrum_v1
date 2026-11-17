@@ -43,6 +43,7 @@ class CompaniesController extends Controller
             //code...
             Company::create([
                 'name'=>$request->name,
+                'repayment_limit_percent'=>$request->repayment_limit_percent,
                 'month1'=>$request->m1,
                 'month2'=>$request->m2,
                 'month3'=>$request->m3,
@@ -105,6 +106,7 @@ class CompaniesController extends Controller
         try {        
             Company::where('id',$id)->update([
                 'name'=>$request->name,
+                'repayment_limit_percent'=>$request->repayment_limit_percent,
                 'month1'=>$request->m1,
                 'month2'=>$request->m2,
                 'month3'=>$request->m3,
